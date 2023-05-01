@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,12 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/*Route::middleware('auth:api')->group(function () {
-    Route::get('test', [UserController::class, 'index']);
-});*/
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
-// api/v1
-Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\v1'], function() {
+Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\API\v1'], function() {
     Route::apiResource('customers', CustomersController::class);
     Route::apiResource('products', ProductsController::class);
 });
