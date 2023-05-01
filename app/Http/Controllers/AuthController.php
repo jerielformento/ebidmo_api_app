@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthLoginRequest;
+use App\Http\Requests\AuthRegisterRequest;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use Illuminate\Http\Request;
@@ -12,24 +14,13 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
-    public function register(Request $request)
+    public function register(AuthRegisterRequest $request)
     {
-        $fields = $request->validate([
-            'username' => 'required|string',
-            'firstname' => 'required|string',
-            'lastname' => 'required|string',
-            'middlename' => 'sometimes|required|nullable',
-            'phone' => 'required|string',
-            'email' => 'required|string|unique:customers_profile,email',
-            'password' => 'required|string|confirmed',
-            'role' => 'required|integer'
-        ]);
-
         // create customer
         $customer = Customers::create([
-            'username' => $fields['username'],
-            'password' => Hash::make($fields['password']),
-            'role' => $fields['role'],
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
             'auth_type' => 1,
             'is_verified' => 0,
             'remember_token' => 'asdasd',
@@ -40,11 +31,11 @@ class AuthController extends Controller
             // create profile
             $customer_profile = CustomersProfile::create([
                 'customer_id' => $customer->id,
-                'email' => $fields['email'],
-                'first_name' => $fields['firstname'],
-                'last_name' => $fields['lastname'],
-                'middle_name' => $fields['middlename'],
-                'phone' => $fields['phone']
+                'email' => $request->email,
+                'first_name' => $request->firstname,
+                'last_name' => $request->lastname,
+                'middle_name' => $request->middlename,
+                'phone' => $request->phone
             ]); 
 
             if(!$customer_profile) {
@@ -63,18 +54,13 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request)
+    public function login(AuthLoginRequest $request)
     {
-        $fields = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string'
-        ]);
-
         // create customer
-        $customer = Customers::where('username', $fields['username'])->first();
+        $customer = Customers::where('username', $request->username)->first();
 
         // check customer login status
-        if(!$customer || !Hash::check($fields['password'], $customer->password)) {
+        if(!$customer || !Hash::check($request->password, $customer->password)) {
             return response([
                 'message' => 'Login failed.'
             ], 401);
@@ -102,4 +88,10 @@ class AuthController extends Controller
             'message' => 'logged out.'
         ], 201);
     }
+
+    public function mapping()
+    {
+        redirect('map');
+    }
+
 }

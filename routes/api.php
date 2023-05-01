@@ -33,5 +33,5 @@ Route::group([
 });
 
 // Public Routes
-Route::post('/auth', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

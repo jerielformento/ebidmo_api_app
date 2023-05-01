@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Customers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CustomerStoreRequest;
+use App\Http\Requests\CustomerUpdateRequest;
 
 class CustomersController extends Controller
 {
@@ -24,7 +26,7 @@ class CustomersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CustomerStoreRequest $request)
     {
         //
     }
@@ -47,7 +49,7 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CustomerUpdateRequest $request, $id)
     {
         //
     }
@@ -64,8 +66,4 @@ class CustomersController extends Controller
         return Customers::destroy($id);
     }
 
-    public function profile()
-    {
-        echo '1';
-    }
 }
