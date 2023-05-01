@@ -61,5 +61,11 @@ class CustomersController extends Controller
     public function destroy($id)
     {
         //
+        return Customers::destroy($id);
+    }
+
+    public function profile()
+    {
+        echo '1';
     }
 }
