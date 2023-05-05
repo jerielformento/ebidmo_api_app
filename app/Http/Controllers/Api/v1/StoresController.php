@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\API\v1;
+namespace App\Http\Controllers\Api\v1;
 
-use App\Models\Customers;
+use App\Http\Requests\StoreRequest;
+use App\Http\Requests\StoreUpdateRequest;
+use App\Models\Stores;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CustomerStoreRequest;
-use App\Http\Requests\CustomerUpdateRequest;
 
-class CustomersController extends Controller
+class StoresController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +17,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        return Customers::with('profile','store')->get();
+        return Stores::all();
     }
 
     /**
@@ -26,7 +26,7 @@ class CustomersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CustomerStoreRequest $request)
+    public function store(StoreRequest $request)
     {
         //
     }
@@ -39,7 +39,7 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        return Customers::with('profile')->find($id);
+        return Stores::where('customer_id', $id)->get();
     }
 
     /**
@@ -49,7 +49,7 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(CustomerUpdateRequest $request, $id)
+    public function update(StoreUpdateRequest $request, $id)
     {
         //
     }
@@ -63,7 +63,5 @@ class CustomersController extends Controller
     public function destroy($id)
     {
         //
-        return Customers::destroy($id);
     }
-
 }

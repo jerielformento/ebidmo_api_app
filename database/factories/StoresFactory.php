@@ -2,9 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Customers;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ProductsFactory extends Factory
+class StoresFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -14,11 +15,8 @@ class ProductsFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name(),
-            'details' => $this->faker->text(20),
-            'condition' => 1,
-            'brand' => 1,
-            'created_at' => $this->faker->dateTime('now')
+            'customer_id' => Customers::factory()->create()->id,
+            'name' => $this->faker->word() . " store"
         ];
     }
 }

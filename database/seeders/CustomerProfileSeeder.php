@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\CustomersProfile;
 use Illuminate\Database\Seeder;
 
-class ProductsSeeder extends Seeder
+class CustomerProfileSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,6 +14,6 @@ class ProductsSeeder extends Seeder
      */
     public function run()
     {
-        //
+        CustomersProfile::factory()->count(10)->create();
     }
 }
