@@ -17,7 +17,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        return Customers::all();
+        return Customers::with('profile','store')->get();
     }
 
     /**
@@ -39,7 +39,7 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        return Customers::find($id);
+        return Customers::with('profile')->find($id);
     }
 
     /**
