@@ -38,4 +38,14 @@ class Customers extends Model
         'role',
         'auth_type'
     ];
+ 
+    public function profile()
+    {
+        return $this->hasOne(CustomersProfile::class, 'customer_id');
+    }
+
+    public function store()
+    {
+        return $this->hasOne(Stores::class, 'customer_id');
+    }
 }

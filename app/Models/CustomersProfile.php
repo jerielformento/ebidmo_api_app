@@ -20,4 +20,9 @@ class CustomersProfile extends Model
         'middle_name',
         'phone'
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customers::class);
+    }
 }

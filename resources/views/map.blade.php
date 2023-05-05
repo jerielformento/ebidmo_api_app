@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>{{ env('APP_NAME') }}</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -49,7 +49,7 @@
                     </tr>
                     <tr>
                         <td>POST</td>
-                        <td>api/auth</td>
+                        <td>api/register</td>
                         <td>auth.register</td>
                         <td>Customer registration</td>
                     </tr>
@@ -88,6 +88,36 @@
                         <td>api/v1/customers/{id}</td>
                         <td>customers.destroy</td>
                         <td>Delete customer</td>
+                    </tr>
+                    <tr>
+                        <td>GET|HEAD</td>
+                        <td>api/v1/stores</td>
+                        <td>stores.index</td>
+                        <td>View stores</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>api/v1/stores</td>
+                        <td>stores.store</td>
+                        <td>Create new store</td>
+                    </tr>
+                    <tr>
+                        <td>GET|HEAD</td>
+                        <td>api/v1/stores/{customer_id}</td>
+                        <td>stores.show</td>
+                        <td>Get customer store details</td>
+                    </tr>
+                    <tr>
+                        <td>PUT|PATCH</td>
+                        <td>api/v1/stores/{customer_id}</td>
+                        <td>stores.update</td>
+                        <td>Update store information</td>
+                    </tr>
+                    <tr>
+                        <td>DELETE</td>
+                        <td>api/v1/stores/{customer_id}</td>
+                        <td>stores.destroy</td>
+                        <td>Delete customer store</td>
                     </tr>
                     <tr>
                         <td>POST</td>

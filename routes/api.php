@@ -27,6 +27,7 @@ Route::group([
 ], function() {
     Route::apiResource('customers', CustomersController::class);
     Route::apiResource('products', ProductsController::class);
+    Route::apiResource('stores', StoresController::class);
     
     // delete auth
     Route::post('logout', [AuthController::class, 'logout']);

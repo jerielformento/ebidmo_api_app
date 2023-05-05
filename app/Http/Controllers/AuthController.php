@@ -7,8 +7,6 @@ use App\Http\Requests\AuthRegisterRequest;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
