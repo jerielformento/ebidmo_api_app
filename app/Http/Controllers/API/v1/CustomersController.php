@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Customers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CustomerBidRequest;
 use App\Http\Requests\CustomerStoreRequest;
 use App\Http\Requests\CustomerUpdateRequest;
 
@@ -39,7 +40,7 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        return Customers::with('profile')->find($id);
+        return Customers::with('profile')->find($id)->first();
     }
 
     /**

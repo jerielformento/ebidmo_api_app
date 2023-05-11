@@ -24,9 +24,15 @@
         </style>
     </head>
     <body class="antialiased">
-        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 bg-white sm:items-center py-4 sm:pt-0">
-            <img class="h-16 w-16 rounded-full" src="{{ url('storage/images/26DJcf7I8QM1HefBStDjAe4xq6Ca7EhOZN75285V.jpg') }}" alt="">
-            <h1 class="text-white">{{ env('APP_NAME') }} API</h1>
-        </div>
+        @foreach($products as $product)
+            <div class="block">
+                <h3>{{ $product->name }}</h3>
+                <small>{{ $product->slug }}</small>
+                <p>{{ $product->details }}</p>
+                @foreach($product->images as $image)
+                    <img src="{{$image->url}}" class="h-16 w-16"/>
+                @endforeach
+            </div>
+        @endforeach
     </body>
 </html>

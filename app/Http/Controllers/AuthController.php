@@ -89,7 +89,7 @@ class AuthController extends Controller
 
     public function mapping()
     {
-        redirect('map');
+        return view('map');
     }
 
 }

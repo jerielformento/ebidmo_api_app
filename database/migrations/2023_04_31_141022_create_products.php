@@ -17,7 +17,9 @@ class CreateProducts extends Migration
             $table->id();
             $table->foreignId('store_id')->references('id')->on('stores');
             $table->string('name', 50);
+            $table->string('slug', 2000);
             $table->text('details');
+            $table->integer('quantity');
             $table->foreignId('condition')->references('id')->on('product_conditions');
             $table->foreignId('brand')->references('id')->on('product_brands');
             $table->integer('rating')->nullable();

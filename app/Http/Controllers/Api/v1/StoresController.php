@@ -39,7 +39,7 @@ class StoresController extends Controller
      */
     public function show($id)
     {
-        return Stores::where('customer_id', $id)->get();
+        return Stores::where('customer_id', $id)->first();
     }
 
     /**

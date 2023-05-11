@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBids extends Migration
+class CreateProductImages extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,13 @@ class CreateBids extends Migration
      */
     public function up()
     {
-        Schema::create('bids', function (Blueprint $table) {
+        Schema::create('product_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->references('id')->on('products');
-            $table->integer('min_price');
-            $table->integer('buy_now_price');
-            $table->string('currency', 3);
-            $table->dateTime('started_at');
-            $table->integer('status');
-            $table->foreignId('won_by')->nullable()->references('id')->on('customers');
+            $table->text('filename');
+            $table->string('url', 255);
+            $table->string('mime_type', 255);
+            $table->integer('size');
         });
     }
 
@@ -32,6 +30,6 @@ class CreateBids extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bids');
+        Schema::dropIfExists('product_images');
     }
 }

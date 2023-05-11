@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,11 +29,12 @@ Route::group([
     Route::apiResource('customers', CustomersController::class);
     Route::apiResource('products', ProductsController::class);
     Route::apiResource('stores', StoresController::class);
+    Route::apiResource('bids', BidsController::class);
     
-    // delete auth
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('customer/bid', [CustomerController::class, 'bid']);
 });
 
 // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
