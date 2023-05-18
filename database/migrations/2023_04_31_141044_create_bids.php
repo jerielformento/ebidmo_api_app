@@ -18,7 +18,7 @@ class CreateBids extends Migration
             $table->foreignId('product_id')->references('id')->on('products');
             $table->integer('min_price');
             $table->integer('buy_now_price');
-            $table->string('currency', 3);
+            $table->integer('currency');
             $table->dateTime('started_at');
             $table->integer('status');
             $table->foreignId('won_by')->nullable()->references('id')->on('customers');

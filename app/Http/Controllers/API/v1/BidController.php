@@ -5,13 +5,13 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Bids;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BidStoreRequest;
+use App\Http\Requests\v1\BidStoreRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-class BidsController extends Controller
+class BidController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -42,7 +42,7 @@ class BidsController extends Controller
             ]);
         } catch(Throwable $e) {
             return response()->json([
-                'message' => 'Encountered error during execution.'
+                'message' => $e->getMessage()
             ], 401);
         }
 
@@ -59,7 +59,7 @@ class BidsController extends Controller
      */
     public function show($id)
     {
-        return DB::table('bids')->join('products', 'products.id', '=', 'bids.product_id')->where('bids.id', $id)->first();
+        return DB::table('bids')->join('products', 'products.id', '=', 'bids.product_id')->where('bids.id', $id)->firstOrFail();
     }
 
     /**

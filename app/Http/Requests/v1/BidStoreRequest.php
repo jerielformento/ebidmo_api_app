@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CustomerStoreRequest extends FormRequest
+class BidStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,10 @@ class CustomerStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'product_id' => 'required|integer',
+            'min_price' => 'required|integer',
+            'buy_now_price' => 'required|integer',
+            'currency' => 'required|integer'
         ];
     }
 }

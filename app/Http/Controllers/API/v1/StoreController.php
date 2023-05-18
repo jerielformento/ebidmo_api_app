@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Requests\StoreRequest;
-use App\Http\Requests\StoreUpdateRequest;
+use App\Http\Requests\v1\StoreRequest;
+use App\Http\Requests\v1\StoreUpdateRequest;
 use App\Models\Stores;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Throwable;
 
-class StoresController extends Controller
+class StoreController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +18,8 @@ class StoresController extends Controller
      */
     public function index()
     {
-        return Stores::all();
+        $customer_id = auth()->user()->id;
+        return Stores::where('customer_id', $customer_id)->firstOrFail();
     }
 
     /**
@@ -28,7 +30,23 @@ class StoresController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        //
+        $customer_id = auth()->user()->id;
+        
+        try {
+            Stores::create([
+                'customer_id' => $customer_id,
+                'name' => $request->name
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Open store failed.',
+                'code' => $e->getCode()
+            ], 500);
+        }   
+
+        return response()->json([
+            'message' => 'Store has been created.'
+        ], 200);
     }
 
     /**

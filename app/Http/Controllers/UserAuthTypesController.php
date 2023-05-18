@@ -1,15 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\API\v1;
+namespace App\Http\Controllers;
 
-use App\Models\Customers;
+use App\Models\UserAuthTypes;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\CustomerBidRequest;
-use App\Http\Requests\CustomerStoreRequest;
-use App\Http\Requests\CustomerUpdateRequest;
 
-class CustomersController extends Controller
+class UserAuthTypesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +14,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        return Customers::with('profile','store')->get();
+        return UserAuthTypes::all();
     }
 
     /**
@@ -27,7 +23,7 @@ class CustomersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CustomerStoreRequest $request)
+    public function store(Request $request)
     {
         //
     }
@@ -40,7 +36,7 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        return Customers::with('profile')->find($id)->first();
+        //
     }
 
     /**
@@ -50,7 +46,7 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(CustomerUpdateRequest $request, $id)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -64,7 +60,5 @@ class CustomersController extends Controller
     public function destroy($id)
     {
         //
-        return Customers::destroy($id);
     }
-
 }

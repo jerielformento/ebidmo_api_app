@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CustomerBidRequest extends FormRequest
+class CustomerUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class CustomerBidRequest extends FormRequest
     public function rules()
     {
         return [
-            'bid_id' => 'required|integer',
-            'price' => 'required|integer'
+            //
         ];
     }
 }

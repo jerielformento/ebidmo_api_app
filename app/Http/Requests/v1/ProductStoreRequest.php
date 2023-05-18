@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -31,5 +31,10 @@ class ProductStoreRequest extends FormRequest
             'brand' => 'required|integer',
             'images.*' => 'required|mimes:jpeg,png,jpg'
         ];
+    }
+
+    public function prepareValidation()
+    {
+        
     }
 }

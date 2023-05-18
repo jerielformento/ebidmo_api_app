@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DocsController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/products', [HomeController::class, 'view']);
-Route::any('/apimap', function () {
-    return view('map');
-});
+Route::any('/api-docs', [DocsController::class, 'index']);
+Route::any('/api-docs/auth', [DocsController::class, 'auth']);
+Route::any('/api-docs/customer', [DocsController::class, 'customer']);
+Route::any('/api-docs/product', [DocsController::class, 'product']);
+Route::any('/api-docs/store', [DocsController::class, 'store']);
+Route::any('/api-docs/bid', [DocsController::class, 'bid']);
+Route::any('/api-docs/utilities', [DocsController::class, 'utilities']);
+
+Route::get('/ebidmo-admin', [AdminController::class, 'index']);

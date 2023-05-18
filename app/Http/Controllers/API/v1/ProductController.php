@@ -5,8 +5,8 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ProductStoreRequest;
-use App\Http\Requests\ProductUpdateRequest;
+use App\Http\Requests\v1\ProductUpdateRequest;
+use App\Http\Requests\v1\ProductStoreRequest;
 use App\Models\ProductImages;
 use App\Models\Stores;
 use Exception;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
-class ProductsController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,8 +24,16 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        //
-        return Products::all();
+        //return Products::all();
+        $customer_id = auth()->user()->id;
+        $store = Stores::where('customer_id', $customer_id)->first();
+        $product = [];
+        
+        if($store) {
+            $product = Products::with('images:product_id,filename,url,mime_type,size')->where('store_id', $store->id)->first(['id','name','slug','details','quantity','brand','condition','created_at'])->paginate(12);
+        }
+
+        return $product;
     }
 
     /**

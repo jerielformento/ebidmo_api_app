@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AuthLoginRequest;
-use App\Http\Requests\AuthRegisterRequest;
+use App\Http\Requests\v1\AuthLoginRequest;
+use App\Http\Requests\v1\AuthRegisterRequest;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class AuthController extends Controller
         $customer = Customers::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 1,
             'auth_type' => 1,
             'is_verified' => 0,
             'remember_token' => 'asdasd',
