@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\API\v1\BidController;
+use App\Http\Controllers\API\v1\CustomerController;
+use App\Http\Controllers\API\v1\ProductController;
+use App\Http\Controllers\Api\v1\StoreController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CurrenciesController;
 use App\Http\Controllers\ProductBrandsController;
 use App\Http\Controllers\ProductConditionsController;
 use App\Http\Controllers\UserAuthTypesController;
 use App\Http\Controllers\UserRolesController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,19 +26,30 @@ use Illuminate\Support\Facades\Route;
 // Authenticated Route
 Route::group([
     'prefix' => 'v1', 
-    'namespace' => 'App\Http\Controllers\API\v1',
     'middleware' => ['auth:sanctum']
 ], function() {
-    Route::apiResource('customer', CustomerController::class);
-    Route::apiResource('product', ProductController::class);
-    Route::apiResource('store', StoreController::class);
-    Route::apiResource('bid', BidController::class);
-    
+    // Customers
+    Route::resource('customer', CustomerController::class);
     Route::post('customer/bid', [CustomerController::class, 'bid']);
+    Route::get('customer/auction/create/{id}', [BidController::class, 'showAuction']);
+    Route::get('customer/bid/history/{id}', [CustomerController::class, 'history']);
+
+    // Products
+    Route::resource('product', ProductController::class)->except(['index']);
+    Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/all', [ProductController::class, 'all']);
+
+    // Vendor
+    Route::resource('store', StoreController::class)->except(['index']);
+    Route::get('stores', [StoreController::class, 'index']);
+
+    // Bid
+    Route::apiResource('bid', BidController::class)->except(['index']);
+    Route::get('bids', [BidController::class, 'index']);
 });
 
 // Utilities Routes
-Route::group(['prefix' => 'utilities'], function() {
+Route::group(['prefix' => 'util'], function() {
     Route::get('user/auth/types', [UserAuthTypesController::class, 'index']);
     Route::get('user/roles', [UserRolesController::class, 'index']);
     Route::get('product/conditions', [ProductConditionsController::class, 'index'])->middleware('auth:sanctum');

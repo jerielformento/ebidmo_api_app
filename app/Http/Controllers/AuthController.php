@@ -6,7 +6,9 @@ use App\Http\Requests\v1\AuthLoginRequest;
 use App\Http\Requests\v1\AuthRegisterRequest;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
+use App\Models\Stores;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -55,20 +57,37 @@ class AuthController extends Controller
     public function login(AuthLoginRequest $request)
     {
         // create customer
-        $customer = Customers::where('username', $request->username)->first();
+        //$customer = Customers::where('username', $request->username)->first();
+
+        $remember_me  = $request->remember;
 
         // check customer login status
-        if(!$customer || !Hash::check($request->password, $customer->password)) {
+        if (Auth::guard('customer')->attempt(['username' => $request->username, 'password' => 
+            $request->password])) {
+            $customer = Customers::with('profile:customer_id,first_name,last_name')->where('username', $request->username)->first();
+            Auth::guard('customer')->login($customer, $request->remember);
+        } else {
             return response([
                 'message' => 'Login failed.'
             ], 401);
         }
+
+        /*if(!$customer || !Hash::check($request->password, $customer->password)) {
+            return response([
+                'message' => 'Login failed.'
+            ], 401);
+        }*/
         
         // generate token to logged in customer
         $token = $customer->createToken('ebid-app-token')->plainTextToken;
 
         return response([
-            'user' => $customer,
+            'user' => [
+                'username' => $customer->username,
+                'firstname' => $customer->profile->first_name,
+                'lastname' => $customer->profile->first_name,
+                'fullname' => $customer->profile->first_name.' '.$customer->profile->last_name
+            ],
             'token' => $token
         ], 201);
     }

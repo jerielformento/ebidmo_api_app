@@ -17,13 +17,22 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [HomeController::class, 'index']);
-Route::get('/products', [HomeController::class, 'view']);
-Route::any('/api-docs', [DocsController::class, 'index']);
-Route::any('/api-docs/auth', [DocsController::class, 'auth']);
-Route::any('/api-docs/customer', [DocsController::class, 'customer']);
-Route::any('/api-docs/product', [DocsController::class, 'product']);
-Route::any('/api-docs/store', [DocsController::class, 'store']);
-Route::any('/api-docs/bid', [DocsController::class, 'bid']);
-Route::any('/api-docs/utilities', [DocsController::class, 'utilities']);
+/*Route::get('/login', [HomeController::class, 'login']);
+Route::get('/register', [HomeController::class, 'register']);
+Route::get('/store', [HomeController::class, 'store']);
+Route::get('/product/details', [HomeController::class, 'productDetails']);
+Route::get('/account/forgot-password', [HomeController::class, 'forgot']); */
 
+// API Documentation
+Route::group(['prefix' => 'api-docs'], function() {
+    Route::any('/', [DocsController::class, 'index']);
+    Route::any('auth', [DocsController::class, 'auth']);
+    Route::any('customer', [DocsController::class, 'customer']);
+    Route::any('product', [DocsController::class, 'product']);
+    Route::any('store', [DocsController::class, 'store']);
+    Route::any('bid', [DocsController::class, 'bid']);
+    Route::any('utilities', [DocsController::class, 'utilities']);
+});
+
+// Admin Page
 Route::get('/ebidmo-admin', [AdminController::class, 'index']);

@@ -20,6 +20,8 @@ class CreateBids extends Migration
             $table->integer('buy_now_price');
             $table->integer('currency');
             $table->dateTime('started_at');
+            $table->dateTime('ended_at');
+            $table->integer('increment_by');
             $table->integer('status');
             $table->foreignId('won_by')->nullable()->references('id')->on('customers');
         });

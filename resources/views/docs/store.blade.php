@@ -15,15 +15,15 @@
         <tbody>
             <tr>
                 <td><span class="badge bg-success">GET</span></td>
-                <td>/api/v1/store</td>
-                <td>store.index</td>
+                <td>/api/v1/stores</td>
+                <td>stores.index</td>
                 <td><p><strong>Accept:</strong> application/json<br/><strong>Content-Type:</strong> application/json</p></td>
                 <td>
 
                 </td>
                 <td></td>
                 <td><span class="badge bg-success">AUTH</span></td>
-                <td>View authenticated customer store details</td>
+                <td>View list of store</td>
             </tr>
             <tr>
                 <td><span class="badge bg-primary">POST</span></td>

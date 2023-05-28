@@ -24,7 +24,7 @@ class ProductStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
+            'name' => 'required|regex:/^[a-zA-Z0-9 ()_\-.+&!]+$/u',
             'details' => 'required|min:3|max:1000',
             'quantity' => 'required|integer',
             'condition' => 'required|integer',

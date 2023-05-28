@@ -12,4 +12,9 @@ class ProductConditions extends Model
     protected $fillable = [
         'description'
     ];
+
+    public function product()
+    {
+        return $this->hasOne(Products::class, 'condition', 'id');
+    }
 }

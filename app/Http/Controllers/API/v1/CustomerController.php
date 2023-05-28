@@ -95,28 +95,31 @@ class CustomerController extends Controller
             'customer_id' => $customer_id
         ])->first();
 
-        if(!$bid_exist) {
-            try {
-                CustomerBids::create([
-                    'bid_id' => $request->bid_id,
-                    'customer_id' => $customer_id,
-                    'price' => $request->price,
-                    'bidded_at' => Carbon::now()->toDateTime()
-                ]);
-            } catch(Throwable $e) {
-                return response()->json([
-                    'message' => 'Invalid request.',
-                    'error' => $e->getMessage()
-                ], 401);
-            }
-        } else {
+        try {
+            CustomerBids::create([
+                'bid_id' => $request->bid_id,
+                'customer_id' => $customer_id,
+                'price' => $request->price,
+                'bidded_at' => Carbon::now()->toDateTime()
+            ]);
+        } catch(Throwable $e) {
             return response()->json([
-                'message' => 'You already placed your bid.'
-            ], 201);    
+                'message' => 'Invalid request.',
+                'error' => $e->getMessage()
+            ], 401);
         }
 
         return response()->json([
             'message' => 'Bid has been placed.'
         ], 201);
     }
+
+    public function history($id)
+    {
+        $customer_id = auth()->user()->id;
+        return CustomerBids::where('customer_id', $customer_id)
+        ->where('bid_id', $id)
+        ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price']);
+    }
+
 }

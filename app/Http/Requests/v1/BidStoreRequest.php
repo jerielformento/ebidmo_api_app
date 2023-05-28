@@ -24,10 +24,11 @@ class BidStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_id' => 'required|integer',
+            'slug' => 'required|string',
             'min_price' => 'required|integer',
             'buy_now_price' => 'required|integer',
-            'currency' => 'required|integer'
+            'increment_price' => 'required|integer',
+            'expiration' => 'required|date|after:start_date'
         ];
     }
 }

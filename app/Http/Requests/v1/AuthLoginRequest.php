@@ -25,7 +25,8 @@ class AuthLoginRequest extends FormRequest
     {
         return [
             'username' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
+            'remember' => 'boolean'
         ];
     }
 }

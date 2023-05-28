@@ -13,4 +13,9 @@ class Currencies extends Model
         'code',
         'description'
     ];
+
+    public function bid()
+    {
+        $this->belongsTo(Bids::class, 'currency', 'id');
+    }
 }

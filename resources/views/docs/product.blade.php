@@ -15,8 +15,8 @@
         <tbody>
             <tr>
                 <td><span class="badge bg-success">GET</span></td>
-                <td>/api/v1/product</td>
-                <td>product.all</td>
+                <td>/api/v1/products</td>
+                <td>products.index</td>
                 <td><p><strong>Accept:</strong> application/json<br/><strong>Content-Type:</strong> application/json</p></td>
                 <td>
                     

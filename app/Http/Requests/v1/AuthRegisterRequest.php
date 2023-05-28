@@ -24,12 +24,12 @@ class AuthRegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|string',
-            'firstname' => 'required|string',
-            'lastname' => 'required|string',
-            'middlename' => 'sometimes|required|nullable',
-            'phone' => 'required|string',
-            'email' => 'required|string|unique:customers_profile,email',
+            'username' => 'required|string|unique:customers',
+            'firstname' => 'required|regex:/^[a-zA-Z .]+$/u',
+            'lastname' => 'required|regex:/^[a-zA-Z .]+$/u',
+            'middlename' => 'sometimes|regex:/^[a-zA-Z ]+$/u|nullable',
+            'phone' => 'required|alpha_num',
+            'email' => 'required|regex:/^[a-zA-Z.-_@]+$/u|unique:customers_profile,email',
             'password' => 'required|string|confirmed'
         ];
     }

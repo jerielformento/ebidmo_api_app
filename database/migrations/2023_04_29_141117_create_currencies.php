@@ -17,6 +17,7 @@ class CreateCurrencies extends Migration
             $table->id();
             $table->string('code', 3);
             $table->string('description', 255);
+            $table->string('prefix', 1);
         });
     }
 
