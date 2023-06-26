@@ -215,6 +215,7 @@ class BidController extends Controller
             ->where('slug', $product)
             ->first();
             $customer_id = auth()->user()->id;
+        $mystore = Stores::where('customer_id', $customer_id)->first();
 
         if($products) {
             $aproducts = collect($products)->map(function($prod, $key) {
@@ -227,18 +228,17 @@ class BidController extends Controller
             });
 
             if($aproducts['store']['slug'] === $store) {
-
-                    //$aproducts['store']['customer_id'] = encrypt($aproducts['store']['customer_id']);
-                    
-                    if($aproducts['store']['customer_id'] === encrypt($customer_id)) {
-                        $aproducts->put('owner', true);
-                    } else {
-                        $aproducts->put('owner', false);
-                    }
-
+                
+                if($aproducts['store']['slug'] === $mystore->slug) {
+                    $aproducts->put('owner', true);
+                } else {
+                    $aproducts->put('owner', false);
+                }
 
             } else {
-                return ['notok'];
+                return response()->json([
+                    'message' => 'Product not found.'
+                ], 401);
             }
             
         } else {

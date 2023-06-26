@@ -31,6 +31,6 @@ class Stores extends Model
 
     public function customer()
     {
-        $this->belongsTo(Customers::class, 'customer_id', 'id');
+        return $this->hasOne(Customers::class, 'id', 'customer_id');
     }
 }
