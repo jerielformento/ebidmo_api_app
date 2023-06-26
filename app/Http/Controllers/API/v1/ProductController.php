@@ -173,7 +173,9 @@ class ProductController extends Controller
             $aprod = collect($product);
             $aprod->put('store_slug', Str::slug($aprod['store']['name']));
             $customer_id = auth()->user()->id;
-            if($aprod['store']['customer_id'] === $customer_id) {
+            $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
+
+            if($aprod['store']['slug'] === $mystore->slug) {
                 $aprod->put('owner', true);
             }
             $append_product = $aprod;
@@ -207,7 +209,9 @@ class ProductController extends Controller
 
             $aprod = collect($product);
             $customer_id = auth()->user()->id;
-            if($aprod['store']['customer_id'] === $customer_id) {
+            $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
+
+            if($aprod['store']['slug'] === $mystore->slug) {
                 $aprod->put('owner', true);
             }
 

@@ -214,8 +214,9 @@ class BidController extends Controller
         $products = Products::with('images', 'bid', 'bid.highest','store','bid.currency', 'brand', 'condition', 'category')
             ->where('slug', $product)
             ->first();
-            $customer_id = auth()->user()->id;
-        $mystore = Stores::where('customer_id', $customer_id)->first();
+
+        $customer_id = auth()->user()->id;
+        $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
         if($products) {
             $aproducts = collect($products)->map(function($prod, $key) {
