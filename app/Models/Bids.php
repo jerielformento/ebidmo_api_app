@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class Bids extends Model
 {
@@ -19,6 +20,8 @@ class Bids extends Model
         'increment_by',
         'status'
     ];
+
+    protected $hidden = ['product_id'];
 
     public function product()
     {
@@ -38,5 +41,10 @@ class Bids extends Model
     public function currency()
     {
         return $this->hasOne(Currencies::class, 'id', 'currency');
+    }
+
+    public function participants()
+    {
+        return $this->hasMany(BidParticipants::class, 'bid_id', 'id');
     }
 }

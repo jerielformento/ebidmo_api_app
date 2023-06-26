@@ -7,6 +7,9 @@ use App\Http\Requests\v1\StoreUpdateRequest;
 use App\Models\Stores;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Products;
+use App\Http\Helper\Helper;
+use Illuminate\Support\Str;
 use Throwable;
 
 class StoreController extends Controller
@@ -18,8 +21,7 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $customer_id = auth()->user()->id;
-        return Stores::where('customer_id', $customer_id)->firstOrFail();
+        return Stores::all();
     }
 
     /**
@@ -35,7 +37,9 @@ class StoreController extends Controller
         try {
             Stores::create([
                 'customer_id' => $customer_id,
-                'name' => $request->name
+                'name' => $request->name,
+                'slug' => Helper::createSlug('stores', $request->name),
+                'verified' => 0
             ]);
         } catch (Throwable $e) {
             return response()->json([
@@ -55,9 +59,14 @@ class StoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        return Stores::where('customer_id', $id)->first();
+        return Stores::where('slug', $slug)->first();
+    }
+
+    public function products($store)
+    {
+        return Products::with('brand','condition','thumbnail','store','currency')->whereRelation('store', 'slug', $store)->limit(20)->get();
     }
 
     /**

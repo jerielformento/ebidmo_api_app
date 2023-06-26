@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class CurrencySeeder extends Seeder
+class CurrenciesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,8 +15,8 @@ class CurrencySeeder extends Seeder
     public function run()
     {
         DB::table('currencies')->insert([
-            ['code' => 'PHP', 'description' => 'Philippine Peso'],
-            ['code' => 'USD', 'description' => 'US Dollar'],
+            ['code' => 'PHP', 'description' => 'Philippine Peso', 'prefix' => '₱'],
+            ['code' => 'USD', 'description' => 'US Dollar', 'prefix' => '$'],
         ]);
     }
 }

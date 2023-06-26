@@ -21,6 +21,11 @@ class CustomersProfile extends Model
         'phone'
     ];
 
+    protected $hidden = [
+        'id',
+        'customer_id'
+    ];
+
     public function customer()
     {
         return $this->belongsTo(Customers::class);

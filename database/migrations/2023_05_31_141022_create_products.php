@@ -16,14 +16,18 @@ class CreateProducts extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('store_id')->references('id')->on('stores');
-            $table->string('name', 50);
-            $table->string('slug', 2000);
+            $table->string('name', 100);
+            $table->string('slug', 500);
             $table->text('details');
             $table->integer('quantity');
             $table->foreignId('condition')->references('id')->on('product_conditions');
+            $table->foreignId('category')->references('id')->on('categories');
             $table->foreignId('brand')->references('id')->on('product_brands');
+            $table->foreignId('currency')->references('id')->on('currencies');
+            $table->integer('price');
             $table->integer('rating')->nullable();
             $table->dateTime('created_at');
+            $table->dateTime('updated_at')->nullable();
         });
     }
 

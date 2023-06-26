@@ -34,6 +34,7 @@ class Customers extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'password',
         'remember_token',
         'role',
@@ -48,5 +49,10 @@ class Customers extends Authenticatable
     public function store()
     {
         return $this->hasOne(Stores::class, 'customer_id');
+    }
+
+    public function bid()
+    {
+        return $this->hasMany(CustomerBids::class);
     }
 }

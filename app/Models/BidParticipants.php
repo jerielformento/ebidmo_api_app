@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductConditions extends Model
+class BidParticipants extends Model
 {
     use HasFactory;
     public $timestamps = false;
     protected $fillable = [
-        'description'
+        'bid_id',
+        'customer_id'
     ];
-    
-    public function product()
+
+    public function bid()
     {
-        return $this->hasOne(Products::class, 'condition', 'id');
+        $this->belongsTo(Bids::class);
     }
 }

@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             ProductConditionsSeeder::class,
             ProductBrandsSeeder::class,
             BidStatusSeeder::class,
-            CurrencySeeder::class
+            CurrenciesSeeder::class,
+            CategoriesSeeder::class
         ]);
     }
 }

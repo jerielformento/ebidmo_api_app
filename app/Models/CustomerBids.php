@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerBids extends Model
 {
@@ -18,8 +19,15 @@ class CustomerBids extends Model
         'bidded_at'
     ];
 
+    protected $hidden = ['id','customer_id'];
+
     public function bid()
     {
         $this->belongsTo(Bids::class);
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customers::class, 'id', 'customer_id');
     }
 }

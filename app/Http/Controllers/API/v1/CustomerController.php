@@ -10,7 +10,9 @@ use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
 use App\Models\Bids;
 use App\Models\CustomerBids;
+use App\Models\Stores;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class CustomerController extends Controller
@@ -23,9 +25,10 @@ class CustomerController extends Controller
     public function index()
     {
         $customer_id = auth()->user()->id;
+        
         return Customers::with(
             'profile:customer_id,email,first_name,middle_name,last_name,phone',
-            'store:customer_id,name'
+            'store:customer_id,slug,name'
         )->where('id', $customer_id)->firstOrFail([
             'id',
             'username',
@@ -88,16 +91,27 @@ class CustomerController extends Controller
     public function bid(CustomerBidRequest $request)
     {   
         $customer_id = auth()->user()->id;
+        $decrypted_id = decrypt($request->bid_id);
+        $bid = Bids::findOrFail($decrypted_id);
+        $highest_bid = CustomerBids::where([
+            'bid_id' => $bid->id
+        ])->max('price');
+        
+        if(!empty($highest_bid) && $highest_bid >= $request->price) {
+            return response()->json([
+                'message' => 'Highest bid changed. Try again'
+            ], 401);
+        }
 
-        $bid = Bids::findOrFail($request->bid_id);
-        $bid_exist = CustomerBids::where([
-            'bid_id' => $bid->id,
-            'customer_id' => $customer_id
-        ])->first();
+        if($bid->ended_at < Carbon::now()) {
+            return response()->json([
+                'message' => 'Auction has been ended!'
+            ], 401);
+        }
 
         try {
             CustomerBids::create([
-                'bid_id' => $request->bid_id,
+                'bid_id' => $decrypted_id,
                 'customer_id' => $customer_id,
                 'price' => $request->price,
                 'bidded_at' => Carbon::now()->toDateTime()
@@ -118,7 +132,7 @@ class CustomerController extends Controller
     {
         $customer_id = auth()->user()->id;
         return CustomerBids::where('customer_id', $customer_id)
-        ->where('bid_id', $id)
+        ->where('bid_id', decrypt($id))
         ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price']);
     }
 

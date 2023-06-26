@@ -18,6 +18,14 @@ class ProductImages extends Model
         'size'
     ];
 
+    protected $hidden = [
+        'id',
+        'product_id',
+        'filename',
+        'mime_type',
+        'size'
+    ];
+
     public function product()
     {
         $this->belongsTo(Products::class, 'id', 'product_id');

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class Products extends Model
 {
@@ -17,10 +18,16 @@ class Products extends Model
         'slug',
         'details',
         'condition',
+        'category',
         'brand',
+        'currency',
+        'price',
         'quantity',
-        'created_at'
+        'created_at',
+        'updated_at'
     ];
+
+    protected $hidden = ['id','store_id','updated_at'];
 
     public function store()
     {
@@ -39,7 +46,12 @@ class Products extends Model
 
     public function bid()
     {
-        return $this->hasOne(Bids::class, 'product_id', 'id');
+        return $this->hasOne(Bids::class, 'product_id', 'id')->where('ended_at','>',Carbon::now());
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Categories::class, 'category', 'id');
     }
 
     public function brand()
@@ -51,4 +63,10 @@ class Products extends Model
     {
         return $this->belongsTo(ProductConditions::class, 'condition', 'id');
     }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currencies::class, 'currency', 'id');
+    }
+
 }

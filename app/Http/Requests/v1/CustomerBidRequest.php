@@ -24,7 +24,7 @@ class CustomerBidRequest extends FormRequest
     public function rules()
     {
         return [
-            'bid_id' => 'required|integer',
+            'bid_id' => 'required|string',
             'price' => 'required|numeric'
         ];
     }

@@ -25,6 +25,56 @@ class BidController extends Controller
      */
     public function index()
     {
+        $customer_id = auth()->user()->id;
+        $store = Stores::where('customer_id', $customer_id)->first();
+        
+        $append_bids = [];
+        if($store) {
+            $bids = DB::table('bids')
+                ->join('products', 'products.id', '=', 'bids.product_id')
+                ->join('stores', 'stores.id', '=', 'products.store_id')
+                ->join('product_images', function($img) {
+                    $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
+                })
+                ->join('currencies', 'currencies.id', '=', 'bids.currency')
+                ->where('stores.id', '=', $store->id)
+                ->groupBy('bids.id')
+                ->orderByDesc('bids.id')
+                ->limit(16)
+                ->get([
+                    'bids.id as bid_id',
+                    'products.id as prod_id',
+                    'products.name as item',
+                    'stores.name as store',
+                    'products.slug',
+                    'bids.min_price',
+                    'bids.buy_now_price',
+                    'bids.started_at',
+                    'bids.ended_at',
+                    'product_images.url as img',
+                    'currencies.prefix as currency_prefix',
+                    'currencies.code as currency_code',
+                    ]);
+
+
+            
+            if($bids) {
+                $abids = collect($bids);
+            
+                foreach($abids as $bid) {
+                    $abid = collect($bid);
+                    $abid->put('store_slug', Str::slug($abid['store']));
+                    $append_bids[] = $abid;
+                }
+            }
+        }
+        
+        return $append_bids;
+        //return Products::with('images:id,product_id,url','store:id,name','bid')->get();
+    }
+
+    public function all()
+    {
         $bids = DB::table('bids')
             ->join('products', 'products.id', '=', 'bids.product_id')
             ->join('stores', 'stores.id', '=', 'products.store_id')
@@ -37,10 +87,9 @@ class BidController extends Controller
             ->orderByDesc('bids.id')
             ->limit(16)
             ->get([
-                'bids.id as bid_id',
-                'products.id as prod_id',
                 'products.name as item',
                 'stores.name as store',
+                'stores.slug as store_slug',
                 'products.slug',
                 'bids.min_price',
                 'bids.buy_now_price',
@@ -51,18 +100,14 @@ class BidController extends Controller
                 'currencies.code as currency_code',
                 ]);
 
-            /*  */
-
         $abids = collect($bids);
         $append_bids = [];
         foreach($abids as $bid) {
             $abid = collect($bid);
-            $abid->put('store_slug', Str::slug($abid['store']));
             $append_bids[] = $abid;
         }
 
         return $append_bids;
-
         //return Products::with('images:id,product_id,url','store:id,name','bid')->get();
     }
 
@@ -75,7 +120,7 @@ class BidController extends Controller
     public function store(BidStoreRequest $request)
     {
         $product = Products::where('slug', $request->slug)->firstOrFail(['id']);
-        $bid = Bids::where('product_id', $product->id)->get();
+        $bid = Bids::where('product_id', $product->id)->where('ended_at','>',Carbon::now())->get();
         if($bid->count() === 0) {
             try {
                 Bids::create([
@@ -111,7 +156,7 @@ class BidController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
         //return DB::table('bids')->join('products', 'products.id', '=', 'bids.product_id')->where('bids.id', $id)->firstOrFail();
         /* return DB::table('bids')
@@ -130,18 +175,78 @@ class BidController extends Controller
                 'product_images.url as img'
                 ]); */
 
-        $products = Products::with('images', 'bid', 'store', 'bid.highest', 'bid.currency', 'brand', 'condition')
-            ->where('slug', $id)
+        $products = Products::with('images', 'bid', 'store', 'bid.highest', 'bid.currency', 'brand', 'condition', 'category')
+            ->where('slug', $slug)
+            ->first();
+
+        $customer_id = auth()->user()->id;
+        
+        if($products) {
+            $aproducts = collect($products);
+            
+            //var_dump($aproducts['bid']['ended_at'], Carbon::now());
+            if($aproducts['bid']['ended_at'] > Carbon::now()) {
+                if($aproducts['store']['customer_id'] === $customer_id) {
+                    $aproducts->put('owner', true);
+                } else {
+                    $aproducts->put('owner', false);
+                }
+            } else {
+                return [];
+            }
+        } else {
+            return response()->json([
+                'message' => 'Product not found.'
+            ], 401);
+        }
+        
+        return $aproducts;
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function auctionDetails($store, $product)
+    {
+        $products = Products::with('images', 'bid', 'bid.highest','store','bid.currency', 'brand', 'condition', 'category')
+            ->where('slug', $product)
             ->first();
             $customer_id = auth()->user()->id;
-        
-        $aproducts = collect($products);
-        if($aproducts['store']['customer_id'] === $customer_id) {
-            $aproducts->put('owner', true);
+
+        if($products) {
+            $aproducts = collect($products)->map(function($prod, $key) {
+                if($key === 'bid') {
+                    $prod['id'] = encrypt($prod['id']);
+                    unset($prod['highest']['bid_id']);
+                }
+
+                return $prod;
+            });
+
+            if($aproducts['store']['slug'] === $store) {
+
+                    //$aproducts['store']['customer_id'] = encrypt($aproducts['store']['customer_id']);
+                    
+                    if($aproducts['store']['customer_id'] === encrypt($customer_id)) {
+                        $aproducts->put('owner', true);
+                    } else {
+                        $aproducts->put('owner', false);
+                    }
+
+
+            } else {
+                return ['notok'];
+            }
+            
         } else {
-            $aproducts->put('owner', false);
+            return response()->json([
+                'message' => 'Product not found.'
+            ], 401);
         }
-        $aproducts->put('store_slug', Str::slug($aproducts['store']['name']));
+        
         return $aproducts;
     }
 
@@ -151,7 +256,7 @@ class BidController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showAuction($id)
+    public function auction($slug)
     {
         //return DB::table('bids')->join('products', 'products.id', '=', 'bids.product_id')->where('bids.id', $id)->firstOrFail();
         /* return DB::table('bids')
@@ -169,10 +274,16 @@ class BidController extends Controller
                 'bids.started_at',
                 'product_images.url as img'
                 ]); */
-        $customer_id = auth()->user()->id;
-        $store = Stores::where('customer_id', $customer_id)->firstOrFail();
 
-        return Products::with('images', 'store', 'bid', 'condition', 'brand', 'bid.currency')->where('slug', $id)->first();
+        return Products::with('images', 'store', 'bid', 'condition', 'brand', 'category', 'bid.currency')->where('slug', $slug)->first();
+    }
+
+    public function activity($id)
+    {
+        return CustomerBids::with('customer:id,username')->where('bid_id', $id)
+            ->orderByDesc('id')
+            ->limit(5)
+            ->get(['bidded_at as time', 'price', 'customer_id']);
     }
 
     /**

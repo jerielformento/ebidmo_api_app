@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStores extends Migration
+class CreateBidParticipants extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateStores extends Migration
      */
     public function up()
     {
-        Schema::create('stores', function (Blueprint $table) {
+        Schema::create('bid_participants', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('bid_id')->references('id')->on('bids');
             $table->foreignId('customer_id')->references('id')->on('customers');
-            $table->string('name', 50);
-            $table->string('slug', 500);
-            $table->integer('verified');
+            $table->timestamps();
         });
     }
 
@@ -29,6 +28,6 @@ class CreateStores extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stores');
+        Schema::dropIfExists('bid_participants');
     }
 }

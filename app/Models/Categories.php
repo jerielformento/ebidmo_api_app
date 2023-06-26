@@ -5,22 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Currencies extends Model
+class Categories extends Model
 {
     use HasFactory;
     public $timestamps = false;
     protected $fillable = [
-        'code',
-        'description',
-        'prefix'
+        'title'
     ];
-
-    protected $hidden = ['id'];
-    
-    public function bid()
-    {
-        $this->belongsTo(Bids::class, 'currency', 'id');
-    }
 
     public function product()
     {

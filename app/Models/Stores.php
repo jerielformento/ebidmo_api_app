@@ -17,11 +17,20 @@ class Stores extends Model
      */
     protected $fillable = [
         'customer_id',
-        'name'
+        'name',
+        'slug',
+        'verified'
     ];
+
+    protected $hidden = ['id', 'customer_id'];
 
     public function products()
     {
-        return $this->hasMany(Products::class, 'store_id');
+        return $this->hasMany(Products::class, 'store_id', 'id');
+    }
+
+    public function customer()
+    {
+        $this->belongsTo(Customers::class, 'customer_id', 'id');
     }
 }
