@@ -1,0 +1,1 @@
+<h1>Verification success. Go to login: <a href="{{config('app.frontend_url')}}">eBidMo</a></h1>

@@ -20,6 +20,7 @@ class CreateCustomers extends Migration
             $table->foreignId('role')->references('id')->on('user_roles');
             $table->foreignId('auth_type')->references('id')->on('user_auth_types');
             $table->integer('is_verified');
+            $table->string('verification_token', 255);
             $table->rememberToken();
             $table->dateTime('registered_at');
         });

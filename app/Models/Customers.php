@@ -24,6 +24,7 @@ class Customers extends Authenticatable
         'role',
         'auth_type',
         'is_verified',
+        'verification_token',
         'remember_token',
         'registered_at'
     ];
@@ -36,6 +37,7 @@ class Customers extends Authenticatable
     protected $hidden = [
         'id',
         'password',
+        'verification_token',
         'remember_token',
         'role',
         'auth_type'

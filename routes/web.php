@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\HomeController;
+use App\Mail\AccountVerification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,3 +38,6 @@ Route::group(['prefix' => 'api-docs'], function() {
 
 // Admin Page
 Route::get('/ebidmo-admin', [AdminController::class, 'index']);
+Route::get('/email', function() {
+    Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
+});

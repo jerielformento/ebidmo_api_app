@@ -40,38 +40,50 @@ Route::group([
     Route::resource('product', ProductController::class)->except(['index', 'show']);
     Route::get('products', [ProductController::class, 'index']);
     Route::get('products/auction', [ProductController::class, 'indexAuction']);
-    Route::get('product/search/{key}', [ProductController::class, 'search']);
+    
     Route::get('product/store/search/{key}', [ProductController::class, 'storeSearch']);
-    Route::get('product/{store}/{product}', [ProductController::class, 'productDetails']);
-    Route::get('products/all', [ProductController::class, 'all']);
+    
     Route::delete('product/image/remove/{id}', [ProductController::class, 'destroyImage']);
 
     // Vendor
-    Route::resource('store', StoreController::class)->except(['index']);
-    Route::get('stores', [StoreController::class, 'index']);
-    Route::get('store/{store}/products', [StoreController::class, 'products']);
+    Route::resource('store', StoreController::class)->except(['index','show']);
 
     // Bid
     Route::apiResource('bid', BidController::class)->except(['index','show']);
-    Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails']);
+    
     Route::get('bids', [BidController::class, 'index']);
     Route::get('bid/auction/activity/{id}', [BidController::class, 'activity']);
+    
+});
+
+Route::group(['prefix'=>'v1'], function() {
+    Route::get('products/all', [ProductController::class, 'all']);
     Route::get('bids/all', [BidController::class, 'all']);
+
+    Route::get('product/search/{key}', [ProductController::class, 'search']);
+    Route::get('product/{store}/{product}', [ProductController::class, 'productDetails']);
+
+    Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails']);
+    
+    Route::get('store/{slug}', [StoreController::class, 'show']);
+    Route::get('stores', [StoreController::class, 'index']);
+    Route::get('store/{store}/products', [StoreController::class, 'products']);
 });
 
 // Utilities Routes
 Route::group(['prefix' => 'util'], function() {
     Route::get('user/auth/types', [UserAuthTypesController::class, 'index']);
     Route::get('user/roles', [UserRolesController::class, 'index']);
-    Route::get('product/conditions', [ProductConditionsController::class, 'index'])->middleware('auth:sanctum');
-    Route::get('product/brands', [ProductBrandsController::class, 'index'])->middleware('auth:sanctum');
-    Route::get('product/categories', [CategoriesController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('product/conditions', [ProductConditionsController::class, 'index']);
+    Route::get('product/brands', [ProductBrandsController::class, 'index']);
+    Route::get('product/categories', [CategoriesController::class, 'index']);
     Route::get('currencies', [CurrenciesController::class, 'index']);
 });
 
 // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/account-verification/{token}', [AuthController::class, 'accountVerification']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 

@@ -25,7 +25,7 @@ class Bids extends Model
 
     public function product()
     {
-        return $this->hasOne(Products::class, 'product_id', 'id');
+        return $this->hasOne(Products::class, 'id', 'product_id');
     }
 
     public function bidders()

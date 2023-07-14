@@ -10,6 +10,7 @@ use App\Http\Requests\v1\ProductStoreRequest;
 use App\Models\ProductImages;
 use App\Models\Stores;
 use App\Http\Helper\Helper;
+use App\Models\Bids;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -51,7 +52,7 @@ class ProductController extends Controller
         
         if($store) {
             try {
-                $product = Products::with('thumbnail','brand','condition','category','currency','bid', 'bid.highest', 'store')->where('store_id', $store->id)->has('bid')->get();
+                $product = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')->whereRelation('product','store_id', $store->id)->orderByDesc('id')->paginate(10);
             } catch(Throwable $e) {
                 return response()->json([
                     'message' => $e->getMessage()
@@ -62,9 +63,36 @@ class ProductController extends Controller
         return $product;
     }
 
-    public function all()
+    public function all(Request $request)
     {
-        return Products::with('thumbnail','brand','condition','category','currency','store')->limit(20)->get(); 
+        
+        $brands = [];
+        if($request->brand) {
+            foreach($request->brand as $brand) {
+                array_push($brands, $brand);
+            }
+        }
+
+        if(!empty($request->category)) {
+            if(!empty($brands)) {
+                return Products::with('thumbnail','brand','condition','category','currency','store')
+                    ->whereRelation('category', 'id', $request->category)
+                    ->whereIn('brand', $brands)
+                    ->limit(20)->get(); 
+            } else {
+                return Products::with('thumbnail','brand','condition','category','currency','store')
+                    ->whereRelation('category', 'id', $request->category)
+                    ->limit(20)->get(); 
+            }
+        } else {
+            if(!empty($brands)) {
+                return Products::with('thumbnail','brand','condition','category','currency','store')
+                ->whereIn('brand', $brands)
+                ->limit(20)->get(); 
+            } else {
+                return Products::with('thumbnail','brand','condition','category','currency','store')->limit(20)->get(); 
+            }
+        }
     }
 
     /**
@@ -208,15 +236,20 @@ class ProductController extends Controller
             }
 
             $aprod = collect($product);
-            $customer_id = auth()->user()->id;
-            $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
+            
+            try {
+                $customer_id = auth()->user()->id;
+                $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
-            if($aprod['store']['slug'] === $mystore->slug) {
-                $aprod->put('owner', true);
-            }
+                if($aprod['store']['slug'] === $mystore->slug) {
+                    $aprod->put('owner', true);
+                }
 
-            if($aprod['store']['slug'] !== $store) {
-                return response()->json(['message'=> 'Item not found.'], 401);
+                if($aprod['store']['slug'] !== $store) {
+                    return response()->json(['message'=> 'Item not found.'], 401);
+                }
+            } catch(Throwable $e) {
+                $aprod->put('owner', false);
             }
 
             $append_product = $aprod;

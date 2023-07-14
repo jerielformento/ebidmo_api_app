@@ -4,18 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\v1\AuthLoginRequest;
 use App\Http\Requests\v1\AuthRegisterRequest;
+use App\Mail\AccountVerification;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use App\Models\Stores;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use PhpParser\ErrorHandler\Throwing;
+use Throwable;
 
 class AuthController extends Controller
 {
 
     public function register(AuthRegisterRequest $request)
     {
+        // create verification token for email
+        $verif_token = md5($request->username.Carbon::now()->timestamp);
+
         // create customer
         $customer = Customers::create([
             'username' => $request->username,
@@ -23,6 +31,7 @@ class AuthController extends Controller
             'role' => 1,
             'auth_type' => 1,
             'is_verified' => 0,
+            'verification_token' => $verif_token,
             'remember_token' => 'asdasd',
             'registered_at' => date("Y-m-d H:i:s")
         ]);
@@ -42,6 +51,14 @@ class AuthController extends Controller
                 return response([
                     'message' => 'User creation failed.'
                 ], 401);
+            } else {
+                try {
+                    Mail::send(new AccountVerification($request->email, $verif_token));
+                } catch(Throwable $e) {
+                    return response([
+                        'message' => $e->getMessage()
+                    ], 401);
+                }
             }
         } else {
             return response([
@@ -64,8 +81,18 @@ class AuthController extends Controller
         // check customer login status
         if (Auth::guard('customer')->attempt(['username' => $request->username, 'password' => 
             $request->password])) {
-            $customer = Customers::with('profile:customer_id,first_name,last_name')->where('username', $request->username)->first();
-            Auth::guard('customer')->login($customer, $request->remember);
+            try {
+                $customer = Customers::with('profile:customer_id,first_name,last_name')
+                ->where('username', $request->username)
+                ->where('is_verified', 1)
+                ->first();
+
+                Auth::guard('customer')->login($customer, $request->remember);
+            } catch(Throwable $e) {
+                return response([
+                    'message' => 'Login failed.'
+                ], 401);
+            }
         } else {
             return response([
                 'message' => 'Login failed.'
@@ -90,6 +117,19 @@ class AuthController extends Controller
             ],
             'token' => $token
         ], 201);
+    }
+
+    public function accountVerification($token)
+    {
+        try {
+            $customer = Customers::where('is_verified', 0)->where('verification_token', $token)->firstOrFail(['id']);
+            if($customer) {
+                Customers::where('id', $customer->id)->update(['is_verified' => 1]);
+                return view('emails.account_verify_success');
+            }
+        } catch(Throwable $e) {
+            return view('emails.account_verify_error');
+        }
     }
 
     public function logout(Request $request)

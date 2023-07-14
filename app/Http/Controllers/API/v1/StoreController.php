@@ -64,9 +64,18 @@ class StoreController extends Controller
         return Stores::where('slug', $slug)->first();
     }
 
-    public function products($store)
+    public function products(Request $request, $store)
     {
-        return Products::with('brand','condition','thumbnail','store','currency')->whereRelation('store', 'slug', $store)->limit(20)->get();
+        if($request->only('search') && !empty($request->search)) {
+            return Products::with('brand','condition','thumbnail','store','currency')
+                ->where('name','LIKE','%'.$request->search.'%')
+                ->whereRelation('store', 'slug', $store)
+                ->limit(20)->get();
+        } else {
+            return Products::with('brand','condition','thumbnail','store','currency')
+                ->whereRelation('store', 'slug', $store)
+                ->limit(20)->get();
+        }
     }
 
     /**

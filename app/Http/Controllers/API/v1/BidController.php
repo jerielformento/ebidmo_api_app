@@ -73,32 +73,125 @@ class BidController extends Controller
         //return Products::with('images:id,product_id,url','store:id,name','bid')->get();
     }
 
-    public function all()
+    public function all(Request $request)
     {
-        $bids = DB::table('bids')
-            ->join('products', 'products.id', '=', 'bids.product_id')
-            ->join('stores', 'stores.id', '=', 'products.store_id')
-            ->join('product_images', function($img) {
-                $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
-            })
-            ->join('currencies', 'currencies.id', '=', 'bids.currency')
-            ->where('bids.ended_at','>',date("Y-m-d H:i:s"))
-            ->groupBy('bids.id')
-            ->orderByDesc('bids.id')
-            ->limit(16)
-            ->get([
-                'products.name as item',
-                'stores.name as store',
-                'stores.slug as store_slug',
-                'products.slug',
-                'bids.min_price',
-                'bids.buy_now_price',
-                'bids.started_at',
-                'bids.ended_at',
-                'product_images.url as img',
-                'currencies.prefix as currency_prefix',
-                'currencies.code as currency_code',
+
+        $brands = [];
+        if($request->brand) {
+            foreach($request->brand as $brand) {
+                array_push($brands, $brand);
+            }
+        }
+
+        if(!empty($request->category)) {
+            if(!$request->brand) {
+                $bids = DB::table('bids')
+                ->join('products', 'products.id', '=', 'bids.product_id')
+                ->join('stores', 'stores.id', '=', 'products.store_id')
+                ->join('product_images', function ($img) {
+                    $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
+                })
+                ->join('currencies', 'currencies.id', '=', 'bids.currency')
+                ->where('bids.ended_at', '>', date("Y-m-d H:i:s"))
+                ->where('products.category', '=', $request->category)
+                ->groupBy('bids.id')
+                ->orderByDesc('bids.id')
+                ->limit(16)
+                ->get([
+                    'products.name as item',
+                    'stores.name as store',
+                    'stores.slug as store_slug',
+                    'products.slug',
+                    'bids.min_price',
+                    'bids.buy_now_price',
+                    'bids.started_at',
+                    'bids.ended_at',
+                    'product_images.url as img',
+                    'currencies.prefix as currency_prefix',
+                    'currencies.code as currency_code',
                 ]);
+            } else {
+                $bids = DB::table('bids')
+                ->join('products', 'products.id', '=', 'bids.product_id')
+                ->join('stores', 'stores.id', '=', 'products.store_id')
+                ->join('product_images', function ($img) {
+                    $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
+                })
+                ->join('currencies', 'currencies.id', '=', 'bids.currency')
+                ->where('bids.ended_at', '>', date("Y-m-d H:i:s"))
+                ->where('products.category', '=', $request->category)
+                ->whereIn('products.brand', $brands)
+                ->groupBy('bids.id')
+                ->orderByDesc('bids.id')
+                ->limit(16)
+                ->get([
+                    'products.name as item',
+                    'stores.name as store',
+                    'stores.slug as store_slug',
+                    'products.slug',
+                    'bids.min_price',
+                    'bids.buy_now_price',
+                    'bids.started_at',
+                    'bids.ended_at',
+                    'product_images.url as img',
+                    'currencies.prefix as currency_prefix',
+                    'currencies.code as currency_code',
+                ]);
+            }
+        } else {
+            if(!$request->brand) {
+                $bids = DB::table('bids')
+                    ->join('products', 'products.id', '=', 'bids.product_id')
+                    ->join('stores', 'stores.id', '=', 'products.store_id')
+                    ->join('product_images', function ($img) {
+                        $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
+                    })
+                    ->join('currencies', 'currencies.id', '=', 'bids.currency')
+                    ->where('bids.ended_at', '>', date("Y-m-d H:i:s"))
+                    ->groupBy('bids.id')
+                    ->orderByDesc('bids.id')
+                    ->limit(16)
+                    ->get([
+                        'products.name as item',
+                        'stores.name as store',
+                        'stores.slug as store_slug',
+                        'products.slug',
+                        'bids.min_price',
+                        'bids.buy_now_price',
+                        'bids.started_at',
+                        'bids.ended_at',
+                        'product_images.url as img',
+                        'currencies.prefix as currency_prefix',
+                        'currencies.code as currency_code',
+                    ]);
+            } else {
+                $bids = DB::table('bids')
+                ->join('products', 'products.id', '=', 'bids.product_id')
+                ->join('stores', 'stores.id', '=', 'products.store_id')
+                ->join('product_images', function ($img) {
+                    $img->on('product_images.product_id', '=', 'products.id')->latest()->take(1);
+                })
+                ->join('currencies', 'currencies.id', '=', 'bids.currency')
+                ->where('bids.ended_at', '>', date("Y-m-d H:i:s"))
+                ->whereIn('products.brand', $brands)
+                ->groupBy('bids.id')
+                ->orderByDesc('bids.id')
+                ->limit(16)
+                ->get([
+                    'products.name as item',
+                    'stores.name as store',
+                    'stores.slug as store_slug',
+                    'products.slug',
+                    'bids.min_price',
+                    'bids.buy_now_price',
+                    'bids.started_at',
+                    'bids.ended_at',
+                    'product_images.url as img',
+                    'currencies.prefix as currency_prefix',
+                    'currencies.code as currency_code',
+                ]);
+            }
+        }
 
         $abids = collect($bids);
         $append_bids = [];
@@ -215,9 +308,6 @@ class BidController extends Controller
             ->where('slug', $product)
             ->first();
 
-        $customer_id = auth()->user()->id;
-        $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
-
         if($products) {
             $aproducts = collect($products)->map(function($prod, $key) {
                 if($key === 'bid') {
@@ -228,18 +318,25 @@ class BidController extends Controller
                 return $prod;
             });
 
-            if($aproducts['store']['slug'] === $store) {
+            try {
+                $customer_id = auth()->user()->id;
+                $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
                 
-                if($aproducts['store']['slug'] === $mystore->slug) {
-                    $aproducts->put('owner', true);
+                if($aproducts['store']['slug'] === $store) {
+                    
+                    if($aproducts['store']['slug'] === $mystore->slug) {
+                        $aproducts->put('owner', true);
+                    } else {
+                        $aproducts->put('owner', false);
+                    }
+    
                 } else {
-                    $aproducts->put('owner', false);
+                    return response()->json([
+                        'message' => 'Product not found.'
+                    ], 401);
                 }
-
-            } else {
-                return response()->json([
-                    'message' => 'Product not found.'
-                ], 401);
+            } catch(Throwable $e) {
+                $aproducts->put('owner', false);
             }
             
         } else {
