@@ -17,12 +17,13 @@ class CreateBids extends Migration
             $table->id();
             $table->foreignId('product_id')->references('id')->on('products');
             $table->integer('min_price');
-            $table->integer('buy_now_price');
+            $table->integer('buy_now_price')->nullable();
             $table->integer('currency');
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
             $table->integer('increment_by');
             $table->integer('status');
+            $table->integer('min_participants');
             $table->foreignId('won_by')->nullable()->references('id')->on('customers');
         });
     }

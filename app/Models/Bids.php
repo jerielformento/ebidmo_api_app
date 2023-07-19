@@ -13,6 +13,7 @@ class Bids extends Model
     protected $fillable = [
         'product_id',
         'min_price',
+        'min_participants',
         'buy_now_price',
         'currency',
         'started_at',
@@ -21,11 +22,16 @@ class Bids extends Model
         'status'
     ];
 
-    protected $hidden = ['product_id'];
+    protected $hidden = ['product_id', 'won_by'];
 
     public function product()
     {
         return $this->hasOne(Products::class, 'id', 'product_id');
+    }
+
+    public function products()
+    {
+        return $this->belongsTo(Products::class);
     }
 
     public function bidders()
@@ -46,5 +52,10 @@ class Bids extends Model
     public function participants()
     {
         return $this->hasMany(BidParticipants::class, 'bid_id', 'id');
+    }
+
+    public function winner()
+    {
+        return $this->hasOne(Customers::class, 'id', 'won_by');
     }
 }

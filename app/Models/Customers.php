@@ -57,4 +57,9 @@ class Customers extends Authenticatable
     {
         return $this->hasMany(CustomerBids::class);
     }
+
+    public function won()
+    {
+        $this->belongsTo(Bids::class);
+    }
 }

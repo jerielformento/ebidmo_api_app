@@ -20,7 +20,7 @@ class CreateCustomersProfile extends Migration
             $table->string('first_name', 45);
             $table->string('last_name', 45);
             $table->string('middle_name', 45)->nullable();
-            $table->string('phone', 20);
+            $table->string('phone', 20)->nullable();
         });
     }
 

@@ -33,7 +33,8 @@ class ProductController extends Controller
 
         if($store) {
             try {
-                $product = Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('store_id', $store->id)->paginate(10);
+                $product = Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('store_id', $store->id)
+                ->orderByDesc('id')->paginate(10);
             } catch(Throwable $e) {
                 return response()->json([
                     'message' => $e->getMessage()
@@ -52,7 +53,10 @@ class ProductController extends Controller
         
         if($store) {
             try {
-                $product = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')->whereRelation('product','store_id', $store->id)->orderByDesc('id')->paginate(10);
+                $product = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
+                    ->withCount('participants')
+                    ->whereRelation('product','store_id', $store->id)
+                    ->orderByDesc('id')->paginate(10);
             } catch(Throwable $e) {
                 return response()->json([
                     'message' => $e->getMessage()
@@ -93,6 +97,21 @@ class ProductController extends Controller
                 return Products::with('thumbnail','brand','condition','category','currency','store')->limit(20)->get(); 
             }
         }
+    }
+
+    public function suggestions($store)
+    {
+        return Products::with('thumbnail','brand','condition','category','currency','store')
+                    ->whereRelation('store', 'slug', $store)
+                    ->inRandomOrder()->limit(4)->get(); 
+    }
+
+    public function similar($store, $category)
+    {
+        return Products::with('thumbnail','brand','condition','category','currency','store')
+                    ->whereRelation('store', 'slug', '<>', $store)
+                    ->where('category', $category)
+                    ->inRandomOrder()->limit(4)->get();
     }
 
     /**
@@ -136,8 +155,8 @@ class ProductController extends Controller
                     'brand' => $request->brand,
                     'category' => $request->category,
                     'currency' => 1,
-                    'price' => $request->price,
-                    'quantity' => $request->quantity,
+                    //'price' => $request->price,
+                    //'quantity' => $request->quantity,
                     'created_at' => Carbon::now()->toDateTime()
                 ]);
             } catch (Throwable $e) {
@@ -192,7 +211,7 @@ class ProductController extends Controller
         try {
             $product = Products::with('images:product_id,filename,url,mime_type,size','store','brand','condition','category','currency')
             ->where('slug', $slug)
-            ->first(['id','name','slug','details','quantity','brand','condition','category','currency','created_at','store_id']);
+            ->first(['id','name','slug','details','brand','condition','category','currency','created_at','store_id']);
 
             if(!$product) {
                 return response()->json(['message'=> 'Item not found.'], 201);
@@ -229,7 +248,7 @@ class ProductController extends Controller
         try {
             $product = Products::with('images:id,product_id,filename,url,mime_type,size','store','brand','condition','category','currency')
             ->where('slug', $product)
-            ->first(['id','name','slug','details','quantity','brand','condition','category','price','currency','created_at','store_id']);
+            ->first(['id','name','slug','details','brand','condition','category','currency','created_at','store_id']);
             
             if(!$product) {
                 return response()->json(['message'=> 'Item not found.'], 401);
@@ -246,7 +265,7 @@ class ProductController extends Controller
                 }
 
                 if($aprod['store']['slug'] !== $store) {
-                    return response()->json(['message'=> 'Item not found.'], 401);
+                    return response()->json(['message'=> 'Item not found.'], 201);
                 }
             } catch(Throwable $e) {
                 $aprod->put('owner', false);
@@ -278,7 +297,7 @@ class ProductController extends Controller
             $product = Products::with('images:product_id,filename,url,mime_type,size','bid')
             ->where('slug', $slug)
             ->where('store_id', $store->id)
-            ->first(['id','name','slug','details','quantity','brand','condition','created_at','prefix']);
+            ->first(['id','name','slug','details','brand','condition','created_at','prefix']);
 
             if(!$product) {
                 return response()->json(['message'=> 'Item not found.'], 201);
@@ -301,6 +320,16 @@ class ProductController extends Controller
         $store = Stores::where('customer_id', $customer_id)->first();
 
         return Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('name','LIKE','%'.$key.'%')->where('store_id', $store->id)->paginate(10);
+    }
+
+    public function storeSearchAuction($key)
+    {
+        $customer_id = auth()->user()->id;
+        $store = Stores::where('customer_id', $customer_id)->first();
+        return Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
+                    ->whereRelation('product','store_id', $store->id)
+                    ->whereRelation('product', 'name', 'LIKE', '%'.$key.'%')
+                    ->orderByDesc('id')->paginate(10);
     }
 
     /**
@@ -342,8 +371,8 @@ class ProductController extends Controller
                     'condition' => $request->condition,
                     'brand' => $request->brand,
                     'category' => $request->category,
-                    'price' => $request->price,
-                    'quantity' => $request->quantity,
+                    //'price' => $request->price,
+                    //'quantity' => $request->quantity,
                     'updated_at' => Carbon::now()->toDateTime()
                 ]);
             } catch (Throwable $e) {

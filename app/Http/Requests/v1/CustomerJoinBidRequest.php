@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BidStoreRequest extends FormRequest
+class CustomerJoinBidRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,12 +24,7 @@ class BidStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'slug' => 'required|string',
-            'min_price' => 'required|integer',
-            'min_participants' => 'required|integer',
-            'buy_now_price' => 'sometimes|integer|nullable',
-            'increment_price' => 'required|integer',
-            'expiration' => 'required|date|after:start_date'
+            'bid_id' => 'required|string'
         ];
     }
 }

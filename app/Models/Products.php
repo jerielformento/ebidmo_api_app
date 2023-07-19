@@ -21,13 +21,11 @@ class Products extends Model
         'category',
         'brand',
         'currency',
-        'price',
-        'quantity',
         'created_at',
         'updated_at'
     ];
 
-    protected $hidden = ['id','store_id','updated_at'];
+    protected $hidden = ['id','store_id','updated_at','price','quantity'];
 
     public function store()
     {
@@ -46,7 +44,12 @@ class Products extends Model
 
     public function bid()
     {
-        return $this->hasOne(Bids::class, 'product_id', 'id')->where('ended_at','>',Carbon::now());
+        return $this->hasOne(Bids::class, 'product_id', 'id')->where('status', 1)->orWhere('status', 2);
+    }
+
+    public function auctions()
+    {
+        return $this->hasOne(Bids::class, 'product_id', 'id');
     }
 
     public function category()

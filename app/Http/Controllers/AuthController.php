@@ -8,11 +8,13 @@ use App\Mail\AccountVerification;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use App\Models\Stores;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session as FacadesSession;
 use PhpParser\ErrorHandler\Throwing;
 use Throwable;
 
@@ -135,7 +137,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // delete user token
-        if(!auth()->user()->tokens()->delete()) {
+        if(Auth::guard('customer')->check()) {
+            FacadesSession::flush();
+            Auth::guard('customer')->logout();
+        } else {
             return response([
                 'message' => 'Invalid request.'
             ], 401);

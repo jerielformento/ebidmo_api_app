@@ -32,9 +32,12 @@ Route::group([
     // Customers
     Route::resource('customer', CustomerController::class);
     Route::post('customer/bid', [CustomerController::class, 'bid']);
+    Route::post('customer/bid/join', [CustomerController::class, 'joinBid']);
     Route::get('customer/auction/{id}', [BidController::class, 'auction']);
+    Route::get('customer/auction/bid/{id}', [BidController::class, 'auctionBid']);
     Route::get('customer/product/{id}', [ProductController::class, 'product']);
     Route::get('customer/bid/history/{id}', [CustomerController::class, 'history']);
+    
 
     // Products
     Route::resource('product', ProductController::class)->except(['index', 'show']);
@@ -42,11 +45,13 @@ Route::group([
     Route::get('products/auction', [ProductController::class, 'indexAuction']);
     
     Route::get('product/store/search/{key}', [ProductController::class, 'storeSearch']);
+    Route::get('auction/store/search/{key}', [ProductController::class, 'storeSearchAuction']);
     
     Route::delete('product/image/remove/{id}', [ProductController::class, 'destroyImage']);
 
     // Vendor
     Route::resource('store', StoreController::class)->except(['index','show']);
+    Route::get('store/dashboard', [StoreController::class, 'dashboardReport']);
 
     // Bid
     Route::apiResource('bid', BidController::class)->except(['index','show']);
@@ -62,12 +67,15 @@ Route::group(['prefix'=>'v1'], function() {
 
     Route::get('product/search/{key}', [ProductController::class, 'search']);
     Route::get('product/{store}/{product}', [ProductController::class, 'productDetails']);
+    Route::get('products/{store}/suggestion', [ProductController::class, 'suggestions']);
+    Route::get('products/{store}/{category}/similar', [ProductController::class, 'similar']);
 
     Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails']);
     
     Route::get('store/{slug}', [StoreController::class, 'show']);
     Route::get('stores', [StoreController::class, 'index']);
     Route::get('store/{store}/products', [StoreController::class, 'products']);
+    Route::get('store/{store}/auctions', [StoreController::class, 'auctions']);
 });
 
 // Utilities Routes

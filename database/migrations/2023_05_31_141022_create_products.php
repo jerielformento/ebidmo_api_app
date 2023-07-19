@@ -19,12 +19,12 @@ class CreateProducts extends Migration
             $table->string('name', 100);
             $table->string('slug', 500);
             $table->text('details');
-            $table->integer('quantity');
+            $table->integer('quantity')->nullable();
             $table->foreignId('condition')->references('id')->on('product_conditions');
             $table->foreignId('category')->references('id')->on('categories');
             $table->foreignId('brand')->references('id')->on('product_brands');
             $table->foreignId('currency')->references('id')->on('currencies');
-            $table->integer('price');
+            $table->integer('price')->nullable();
             $table->integer('rating')->nullable();
             $table->dateTime('created_at');
             $table->dateTime('updated_at')->nullable();

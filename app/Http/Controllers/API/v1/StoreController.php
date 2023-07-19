@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Products;
 use App\Http\Helper\Helper;
+use App\Models\Bids;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -76,6 +78,49 @@ class StoreController extends Controller
                 ->whereRelation('store', 'slug', $store)
                 ->limit(20)->get();
         }
+    }
+
+    public function auctions(Request $request, $store)
+    {
+        if($request->only('search') && !empty($request->search)) {
+            return Bids::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
+            ->where('ended_at','>',Carbon::now())
+            ->whereRelation('product','name','LIKE','%'.$request->search.'%')
+            ->whereRelation('product.store','slug', $store)
+            ->limit(20)->get();
+        } else {
+            return Bids::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
+                ->where('ended_at','>',Carbon::now())
+                ->whereRelation('product.store','slug', $store)
+                ->limit(20)->get();
+        }
+    }
+
+
+    public function dashboardReport()
+    {
+        $customer_id = auth()->user()->id;
+        $store = Stores::where('customer_id', $customer_id)->firstOrFail(['id']);
+
+        $products = Products::withCount('auctions')->where('store_id', $store->id)->get();
+        $count_bids = 0;
+        $count_products = 0;
+        $aprod = collect($products);
+        foreach($aprod as $prod) {
+            $count_bids += $prod['auctions_count'];
+        }
+
+        $stores = Stores::withCount('products')->where('id', $store->id)->get();
+        $astore = collect($stores);
+        foreach($astore as $store) {
+            $count_products += $store['products_count'];
+        }
+
+        return response()->json([
+            'products_count' => $count_products,
+            'auctions_count' => $count_bids,
+            'transactions_count' => 0
+        ]);
     }
 
     /**
