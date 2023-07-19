@@ -140,10 +140,6 @@ class AuthController extends Controller
         if(Auth::guard('customer')->check()) {
             FacadesSession::flush();
             Auth::guard('customer')->logout();
-        } else {
-            return response([
-                'message' => 'Invalid request.'
-            ], 401);
         }
 
         return response([
