@@ -3,7 +3,7 @@
 use App\Http\Controllers\API\v1\BidController;
 use App\Http\Controllers\API\v1\CustomerController;
 use App\Http\Controllers\API\v1\ProductController;
-use App\Http\Controllers\Api\v1\StoreController;
+use App\Http\Controllers\API\v1\StoreController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CurrenciesController;
