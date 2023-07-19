@@ -41,3 +41,8 @@ Route::get('/ebidmo-admin', [AdminController::class, 'index']);
 Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
 });
+Route::get('/linkstorage', function () {
+    $targetFolder = base_path().'/storage/app/public';
+    $linkFolder = $_SERVER['DOCUMENT_ROOT'].'/storage';
+    symlink($targetFolder, $linkFolder);
+});
