@@ -42,7 +42,7 @@ class AuctionComplete extends Command
     public function handle()
     {
         $bids = Bids::where('ended_at','<',Carbon::now())
-            ->where('status', 1)->get();
+            ->whereIn('status', [1,2])->get();
 
         foreach($bids as $bid) {
             $highest = CustomerBids::where('bid_id', $bid->id)->orderByDesc('price')->limit(1)->first();
