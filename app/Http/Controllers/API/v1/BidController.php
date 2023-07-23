@@ -231,7 +231,7 @@ class BidController extends Controller
     public function auctionDetails($store, $product)
     {
         $customer_id = (Auth::check()) ? Auth::id() : null;
-      
+        
         $products = Products::with(['images',
             'bid' => function($query) {
                 $query->withCount('participants');
