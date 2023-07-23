@@ -19,7 +19,6 @@ class ProductImages extends Model
     ];
 
     protected $hidden = [
-        'id',
         'product_id',
         'filename',
         'mime_type',
