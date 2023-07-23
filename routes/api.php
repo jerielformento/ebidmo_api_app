@@ -58,7 +58,6 @@ Route::group([
     
     Route::get('bids', [BidController::class, 'index']);
     Route::get('bid/auction/activity/{id}', [BidController::class, 'activity']);
-    
 });
 
 Route::group(['prefix'=>'v1'], function() {
@@ -69,13 +68,12 @@ Route::group(['prefix'=>'v1'], function() {
     Route::get('product/{store}/{product}', [ProductController::class, 'productDetails']);
     Route::get('products/{store}/suggestion', [ProductController::class, 'suggestions']);
     Route::get('products/{store}/{category}/similar', [ProductController::class, 'similar']);
-
-    Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails']);
     
     Route::get('store/{slug}', [StoreController::class, 'show']);
     Route::get('stores', [StoreController::class, 'index']);
     Route::get('store/{store}/products', [StoreController::class, 'products']);
     Route::get('store/{store}/auctions', [StoreController::class, 'auctions']);
+    Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails'])->middleware('allow.guest');
 });
 
 // Utilities Routes

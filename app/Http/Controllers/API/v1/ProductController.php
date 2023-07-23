@@ -14,6 +14,7 @@ use App\Models\Bids;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -27,7 +28,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
         $product = [];
 
@@ -47,7 +48,7 @@ class ProductController extends Controller
 
     public function indexAuction()
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
         $product = [];
         
@@ -122,7 +123,7 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();;
         $store = Stores::where('customer_id', $customer_id)->first();
 
         if($store) {
@@ -219,7 +220,7 @@ class ProductController extends Controller
 
             $aprod = collect($product);
             $aprod->put('store_slug', Str::slug($aprod['store']['name']));
-            $customer_id = auth()->user()->id;
+            $customer_id = Auth::id();;
             $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
             if($aprod['store']['slug'] === $mystore->slug) {
@@ -257,7 +258,7 @@ class ProductController extends Controller
             $aprod = collect($product);
             
             try {
-                $customer_id = auth()->user()->id;
+                $customer_id = Auth::id();;
                 $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
                 if($aprod['store']['slug'] === $mystore->slug) {
@@ -290,7 +291,7 @@ class ProductController extends Controller
      */
     public function product($slug)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();;
         $store = Stores::where('customer_id', $customer_id)->first();
         //dd($store);
         try {
@@ -316,7 +317,7 @@ class ProductController extends Controller
 
     public function storeSearch($key)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();;
         $store = Stores::where('customer_id', $customer_id)->first();
 
         return Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('name','LIKE','%'.$key.'%')->where('store_id', $store->id)->paginate(10);
@@ -324,7 +325,7 @@ class ProductController extends Controller
 
     public function storeSearchAuction($key)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();;
         $store = Stores::where('customer_id', $customer_id)->first();
         return Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
                     ->whereRelation('product','store_id', $store->id)
@@ -341,7 +342,7 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, $id)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();;
         $store = Stores::where('customer_id', $customer_id)->first();
         $files = [];
 

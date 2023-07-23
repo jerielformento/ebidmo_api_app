@@ -11,6 +11,7 @@ use App\Models\Products;
 use App\Http\Helper\Helper;
 use App\Models\Bids;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -34,7 +35,7 @@ class StoreController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         
         try {
             Stores::create([
@@ -99,7 +100,7 @@ class StoreController extends Controller
 
     public function dashboardReport()
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->firstOrFail(['id']);
 
         $products = Products::withCount('auctions')->where('store_id', $store->id)->get();

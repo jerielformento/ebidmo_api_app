@@ -14,6 +14,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
@@ -27,7 +28,7 @@ class BidController extends Controller
      */
     public function index()
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
         
         $append_bids = [];
@@ -197,7 +198,7 @@ class BidController extends Controller
             ->where('slug', $slug)
             ->first();
 
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         
         if($products) {
             $aproducts = collect($products);
@@ -229,8 +230,8 @@ class BidController extends Controller
      */
     public function auctionDetails($store, $product)
     {
-        $customer_id = (auth()->check()) ? auth()->user()->id : null;
-
+        $customer_id = (Auth::check()) ? Auth::id() : null;
+      
         $products = Products::with(['images',
             'bid' => function($query) {
                 $query->withCount('participants');

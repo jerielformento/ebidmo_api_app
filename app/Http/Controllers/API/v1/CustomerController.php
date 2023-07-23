@@ -26,7 +26,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         
         return Customers::with(
             'profile:customer_id,email,first_name,middle_name,last_name,phone',
@@ -92,7 +92,7 @@ class CustomerController extends Controller
      */
     public function bid(CustomerBidRequest $request)
     {   
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $decrypted_id = decrypt($request->bid_id);
         $bid = Bids::findOrFail($decrypted_id);
         $highest_bid = CustomerBids::where('bid_id', $bid->id)->orderByDesc('id')->first(['customer_id','price']);
@@ -144,7 +144,7 @@ class CustomerController extends Controller
      */
     public function joinBid(CustomerJoinBidRequest $request)
     {   
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         $decrypted_id = decrypt($request->bid_id);
 
         try {
@@ -200,7 +200,7 @@ class CustomerController extends Controller
 
     public function history($id)
     {
-        $customer_id = auth()->user()->id;
+        $customer_id = Auth::id();
         return CustomerBids::where('customer_id', $customer_id)
         ->where('bid_id', decrypt($id))
         ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price']);
