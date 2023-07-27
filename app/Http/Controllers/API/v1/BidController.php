@@ -93,7 +93,7 @@ class BidController extends Controller
                     ->withCount('participants')
                     ->whereIn('status', [1,2])
                     ->whereRelation('product','category', $request->category)
-                    ->orderByDesc('id')->limit(16)->get();
+                    ->inRandomOrder()->limit(16)->get(); 
             } else {
                 $bids = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
                     ->whereHas('product', function($query) use($brands) {
@@ -102,14 +102,14 @@ class BidController extends Controller
                     ->whereRelation('product','category', $request->category)
                     ->withCount('participants')
                     ->whereIn('status', [1,2])
-                    ->orderByDesc('id')->limit(16)->get();
+                    ->inRandomOrder()->inRandomOrder()->limit(16)->get(); 
             }
         } else {
             if(!$request->brand) {
                 $bids = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
                     ->withCount('participants')
                     ->whereIn('status', [1,2])
-                    ->orderByDesc('id')->limit(16)->get();
+                    ->inRandomOrder()->limit(16)->get(); 
             } else {
                 $bids = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
                     ->whereHas('product', function($query) use($brands) {
@@ -117,7 +117,7 @@ class BidController extends Controller
                     })
                     ->withCount('participants')
                     ->whereIn('status', [1,2])
-                    ->orderByDesc('id')->limit(16)->get();
+                    ->inRandomOrder()->limit(16)->get(); 
             }
         }
 

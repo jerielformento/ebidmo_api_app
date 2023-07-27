@@ -83,19 +83,19 @@ class ProductController extends Controller
                 return Products::with('thumbnail','brand','condition','category','currency','store')
                     ->whereRelation('category', 'id', $request->category)
                     ->whereIn('brand', $brands)
-                    ->limit(20)->get(); 
+                    ->inRandomOrder()->limit(20)->get(); 
             } else {
                 return Products::with('thumbnail','brand','condition','category','currency','store')
                     ->whereRelation('category', 'id', $request->category)
-                    ->limit(20)->get(); 
+                    ->inRandomOrder()->limit(20)->get(); 
             }
         } else {
             if(!empty($brands)) {
                 return Products::with('thumbnail','brand','condition','category','currency','store')
                 ->whereIn('brand', $brands)
-                ->limit(20)->get(); 
+                ->inRandomOrder()->limit(20)->get(); 
             } else {
-                return Products::with('thumbnail','brand','condition','category','currency','store')->limit(20)->get(); 
+                return Products::with('thumbnail','brand','condition','category','currency','store')->inRandomOrder()->limit(20)->get(); 
             }
         }
     }
