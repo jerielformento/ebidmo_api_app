@@ -70,6 +70,17 @@ class DocsStoreSeeder extends Seeder
                 'auth_type' => 'AUTH',
                 'description' => 'Deactivate store (not finalized yet)',
             ],
+            [
+                'router' => 'store', 
+                'method' => 'GET', 
+                'uri' => '/api/v1/store/dashboard', 
+                'name' => 'store.dashboard', 
+                'headers' => 'application/json', 
+                'payload' => '', 
+                'response' => '',
+                'auth_type' => 'AUTH',
+                'description' => 'Get store dashboard details',
+            ],
             
         ]);
     }

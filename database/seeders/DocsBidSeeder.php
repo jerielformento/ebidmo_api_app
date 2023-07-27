@@ -16,6 +16,17 @@ class DocsBidSeeder extends Seeder
     {
         DB::table('api_docs')->insert([
             [
+                'router' => 'product', 
+                'method' => 'GET', 
+                'uri' => '/api/v1/bids/all', 
+                'name' => 'auctions.index', 
+                'headers' => 'application/json', 
+                'payload' => '{"category":"filter (optional)","brand":"filter (optional)"}', 
+                'response' => '',
+                'auth_type' => 'ALL',
+                'description' => 'Get all auctions (randomized list of 16 items)',
+            ],
+            [
                 'router' => 'bid', 
                 'method' => 'GET', 
                 'uri' => '/api/v1/bid', 
@@ -58,6 +69,28 @@ class DocsBidSeeder extends Seeder
                 'response' => '',
                 'auth_type' => 'AUTH',
                 'description' => 'Cancel product for bidding (not finalized yet)',
+            ],
+            [
+                'router' => 'bid', 
+                'method' => 'GET', 
+                'uri' => '/api/v1/bid/{store}/{product}', 
+                'name' => 'auction.details', 
+                'headers' => 'application/json', 
+                'payload' => '', 
+                'response' => '',
+                'auth_type' => 'ALL',
+                'description' => 'Get auction details',
+            ],
+            [
+                'router' => 'bid', 
+                'method' => 'GET', 
+                'uri' => '/api/v1/bid/auction/activity/{id}', 
+                'name' => 'auction.activity', 
+                'headers' => 'application/json', 
+                'payload' => '', 
+                'response' => '',
+                'auth_type' => 'AUTH',
+                'description' => 'Get customer auction activity',
             ],
         ]);
     }
