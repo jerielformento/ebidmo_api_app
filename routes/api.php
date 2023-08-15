@@ -43,7 +43,7 @@ Route::group([
     Route::delete('products/image/{id}', [ProductController::class, 'destroyImage']);
 
     // Stores
-    Route::resource('stores', StoreController::class);
+    Route::resource('stores', StoreController::class)->except(['show']);
     Route::get('store/dashboard', [StoreController::class, 'dashboardReport']);
     Route::get('store/products/search/{key}', [StoreController::class, 'search']);
     Route::get('store/auctions/search/{key}', [StoreController::class, 'searchAuction']);
