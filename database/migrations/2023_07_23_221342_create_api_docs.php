@@ -20,6 +20,7 @@ class CreateApiDocs extends Migration
             $table->string('uri');
             $table->string('name');
             $table->string('headers');
+            $table->text('query');
             $table->text('payload');
             $table->text('response');
             $table->string('auth_type');

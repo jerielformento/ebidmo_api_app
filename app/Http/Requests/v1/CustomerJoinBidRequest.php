@@ -24,7 +24,7 @@ class CustomerJoinBidRequest extends FormRequest
     public function rules()
     {
         return [
-            'bid_id' => 'required|string'
+            'auction_id' => 'required|string'
         ];
     }
 }

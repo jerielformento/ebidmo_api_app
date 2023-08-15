@@ -44,12 +44,12 @@ class Products extends Model
 
     public function bid()
     {
-        return $this->hasOne(Bids::class, 'product_id', 'id')->where('status', 1)->orWhere('status', 2);
+        return $this->hasOne(Auctions::class, 'product_id', 'id')->where('status', 1)->orWhere('status', 2);
     }
 
     public function auctions()
     {
-        return $this->hasOne(Bids::class, 'product_id', 'id');
+        return $this->hasOne(Auctions::class, 'product_id', 'id');
     }
 
     public function category()

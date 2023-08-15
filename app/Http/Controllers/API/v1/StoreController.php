@@ -9,10 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Products;
 use App\Http\Helper\Helper;
-use App\Models\Bids;
+use App\Models\Auctions;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Throwable;
 
 class StoreController extends Controller
@@ -84,19 +83,36 @@ class StoreController extends Controller
     public function auctions(Request $request, $store)
     {
         if($request->only('search') && !empty($request->search)) {
-            return Bids::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
+            return Auctions::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
             ->where('ended_at','>',Carbon::now())
             ->whereRelation('product','name','LIKE','%'.$request->search.'%')
             ->whereRelation('product.store','slug', $store)
             ->limit(20)->get();
         } else {
-            return Bids::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
+            return Auctions::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
                 ->where('ended_at','>',Carbon::now())
                 ->whereRelation('product.store','slug', $store)
                 ->limit(20)->get();
         }
     }
 
+    public function search($key)
+    {
+        $customer_id = Auth::id();
+        $store = Stores::where('customer_id', $customer_id)->first();
+
+        return Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('name','LIKE','%'.$key.'%')->where('store_id', $store->id)->paginate(10);
+    }
+
+    public function searchAuction($key)
+    {
+        $customer_id = Auth::id();
+        $store = Stores::where('customer_id', $customer_id)->first();
+        return Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
+                    ->whereRelation('product','store_id', $store->id)
+                    ->whereRelation('product', 'name', 'LIKE', '%'.$key.'%')
+                    ->orderByDesc('id')->paginate(10);
+    }
 
     public function dashboardReport()
     {

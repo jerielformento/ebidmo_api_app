@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBidStatus extends Migration
+class CreateAuctionStatus extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateBidStatus extends Migration
      */
     public function up()
     {
-        Schema::create('bid_status', function (Blueprint $table) {
+        Schema::create('auction_status', function (Blueprint $table) {
             $table->id();
             $table->string('description', 20);
         });
@@ -26,6 +26,6 @@ class CreateBidStatus extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bid_status');
+        Schema::dropIfExists('auction_status');
     }
 }

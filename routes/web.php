@@ -32,7 +32,7 @@ Route::group(['prefix' => 'api-docs'], function() {
     Route::any('customer', [DocsController::class, 'customer']);
     Route::any('product', [DocsController::class, 'product']);
     Route::any('store', [DocsController::class, 'store']);
-    Route::any('bid', [DocsController::class, 'bid']);
+    Route::any('auction', [DocsController::class, 'auction']);
     Route::any('utilities', [DocsController::class, 'utilities']);
 });
 

@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Models\Customers;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\CustomerBidRequest;
 use App\Http\Requests\v1\CustomerJoinBidRequest;
 use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
-use App\Models\BidParticipants;
-use App\Models\Bids;
+use App\Models\AuctionParticipants;
+use App\Models\Auctions;
 use App\Models\CustomerBids;
-use App\Models\Stores;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
@@ -93,9 +91,9 @@ class CustomerController extends Controller
     public function bid(CustomerBidRequest $request)
     {   
         $customer_id = Auth::id();
-        $decrypted_id = decrypt($request->bid_id);
-        $bid = Bids::findOrFail($decrypted_id);
-        $highest_bid = CustomerBids::where('bid_id', $bid->id)->orderByDesc('id')->first(['customer_id','price']);
+        $decrypted_id = decrypt($request->auction_id);
+        $bid = Auctions::findOrFail($decrypted_id);
+        $highest_bid = CustomerBids::where('auction_id', $bid->id)->orderByDesc('id')->first(['customer_id','price']);
         
         if($highest_bid) {
             if($highest_bid->customer_id === $customer_id) {
@@ -119,7 +117,7 @@ class CustomerController extends Controller
 
         try {
             CustomerBids::create([
-                'bid_id' => $decrypted_id,
+                'auction_id' => $decrypted_id,
                 'customer_id' => $customer_id,
                 'price' => $request->price,
                 'bidded_at' => Carbon::now()->toDateTime()
@@ -145,11 +143,11 @@ class CustomerController extends Controller
     public function joinBid(CustomerJoinBidRequest $request)
     {   
         $customer_id = Auth::id();
-        $decrypted_id = decrypt($request->bid_id);
+        $decrypted_id = decrypt($request->auction_id);
 
         try {
-            $check_exist = BidParticipants::where([
-                'bid_id' => $decrypted_id,
+            $check_exist = AuctionParticipants::where([
+                'auction_id' => $decrypted_id,
                 'customer_id' => $customer_id
             ])->count();
 
@@ -159,12 +157,12 @@ class CustomerController extends Controller
                 ], 401);
             }
 
-            $bids = Bids::where('id', $decrypted_id)->firstOrFail();
-            $participants = BidParticipants::where('bid_id', $decrypted_id)->count();
+            $bids = Auctions::where('id', $decrypted_id)->firstOrFail();
+            $participants = AuctionParticipants::where('auction_id', $decrypted_id)->count();
             
             if($bids->min_participants > $participants) {
-                BidParticipants::create([
-                    'bid_id' => $decrypted_id,
+                AuctionParticipants::create([
+                    'auction_id' => $decrypted_id,
                     'customer_id' => $customer_id
                 ]);
 
@@ -172,7 +170,7 @@ class CustomerController extends Controller
 
                 
                 if($bids->min_participants === $count_participants) {
-                    Bids::where('id', $decrypted_id)->update([
+                    Auctions::where('id', $decrypted_id)->update([
                         'status' => 1
                     ]);
 
@@ -202,7 +200,7 @@ class CustomerController extends Controller
     {
         $customer_id = Auth::id();
         return CustomerBids::where('customer_id', $customer_id)
-        ->where('bid_id', decrypt($id))
+        ->where('auction_id', decrypt($id))
         ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price']);
     }
 

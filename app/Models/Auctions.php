@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
-class Bids extends Model
+class Auctions extends Model
 {
     use HasFactory;
     public $timestamps = false;
@@ -36,12 +36,12 @@ class Bids extends Model
 
     public function bidders()
     {
-        return $this->hasMany(CustomerBids::class, 'bid_id');
+        return $this->hasMany(CustomerBids::class, 'auction_id');
     }
 
     public function highest()
     {
-        return $this->hasOne(CustomerBids::class, 'bid_id', 'id')->ofMany('price','max');
+        return $this->hasOne(CustomerBids::class, 'auction_id', 'id')->ofMany('price','max');
     }
 
     public function currency()
@@ -51,7 +51,7 @@ class Bids extends Model
 
     public function participants()
     {
-        return $this->hasMany(BidParticipants::class, 'bid_id', 'id');
+        return $this->hasMany(AuctionParticipants::class, 'auction_id', 'id');
     }
 
     public function winner()

@@ -46,7 +46,7 @@
                     <a class="nav-link" aria-current="page" href="/api-docs/store"><span data-feather="home"></span> Store</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="/api-docs/bid"><span data-feather="home"></span> Bid</a>
+                    <a class="nav-link" aria-current="page" href="/api-docs/auction"><span data-feather="home"></span> Auction</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="/api-docs/utilities"><span data-feather="home"></span> Utilities</a>

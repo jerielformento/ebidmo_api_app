@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\v1\BidController;
+use App\Http\Controllers\API\v1\AuctionController;
 use App\Http\Controllers\API\v1\CustomerController;
 use App\Http\Controllers\API\v1\ProductController;
 use App\Http\Controllers\API\v1\StoreController;
@@ -33,60 +33,58 @@ Route::group([
     Route::resource('customer', CustomerController::class);
     Route::post('customer/bid', [CustomerController::class, 'bid']);
     Route::post('customer/bid/join', [CustomerController::class, 'joinBid']);
-    Route::get('customer/auction/{id}', [BidController::class, 'auction']);
-    Route::get('customer/auction/bid/{id}', [BidController::class, 'auctionBid']);
+    Route::get('customer/auction/{id}', [AuctionController::class, 'auction']);
+    Route::get('customer/auction/bid/{id}', [AuctionController::class, 'auctionBid']);
     Route::get('customer/product/{id}', [ProductController::class, 'product']);
     Route::get('customer/bid/history/{id}', [CustomerController::class, 'history']);
     
-
     // Products
-    Route::resource('product', ProductController::class)->except(['index', 'show']);
-    Route::get('products', [ProductController::class, 'index']);
-    Route::get('products/auction', [ProductController::class, 'indexAuction']);
-    
-    Route::get('product/store/search/{key}', [ProductController::class, 'storeSearch']);
-    Route::get('auction/store/search/{key}', [ProductController::class, 'storeSearchAuction']);
-    
-    Route::delete('product/image/remove/{id}', [ProductController::class, 'destroyImage']);
+    Route::resource('products', ProductController::class)->except(['all','show']);
+    Route::delete('products/image/{id}', [ProductController::class, 'destroyImage']);
 
-    // Vendor
-    Route::resource('store', StoreController::class)->except(['index','show']);
+    // Stores
+    Route::resource('stores', StoreController::class);
     Route::get('store/dashboard', [StoreController::class, 'dashboardReport']);
+    Route::get('store/products/search/{key}', [StoreController::class, 'search']);
+    Route::get('store/auctions/search/{key}', [StoreController::class, 'searchAuction']);
 
-    // Bid
-    Route::apiResource('bid', BidController::class)->except(['index','show']);
-    
-    Route::get('bids', [BidController::class, 'index']);
-    Route::get('bid/auction/activity/{id}', [BidController::class, 'activity']);
+    // Auctions
+    Route::resource('auctions', AuctionController::class)->except(['all','show','auctionDetails','activity']);
+    Route::get('auction/activity/{id}', [AuctionController::class, 'activity']);
 });
 
 Route::group(['prefix'=>'v1'], function() {
+    // Products
     Route::get('products/all', [ProductController::class, 'all']);
-    Route::get('bids/all', [BidController::class, 'all']);
-
-    Route::get('product/search/{key}', [ProductController::class, 'search']);
-    Route::get('product/{store}/{product}', [ProductController::class, 'productDetails']);
+    Route::get('products/search/{key}', [ProductController::class, 'search']);
     Route::get('products/{store}/suggestion', [ProductController::class, 'suggestions']);
+    Route::get('products/{store}/{product}', [ProductController::class, 'productDetails']);
     Route::get('products/{store}/{category}/similar', [ProductController::class, 'similar']);
     
-    Route::get('store/{slug}', [StoreController::class, 'show']);
+    // Stores
+    Route::get('stores/{slug}', [StoreController::class, 'show']);
     Route::get('stores', [StoreController::class, 'index']);
-    Route::get('store/{store}/products', [StoreController::class, 'products']);
-    Route::get('store/{store}/auctions', [StoreController::class, 'auctions']);
-    Route::get('bid/{store}/{product}', [BidController::class, 'auctionDetails'])->middleware('allow.guest');
+    Route::get('stores/{store}/products', [StoreController::class, 'products']);
+    Route::get('stores/{store}/auctions', [StoreController::class, 'auctions']);
+
+    // Auctions
+    Route::get('auctions/all', [AuctionController::class, 'all']);
+    Route::get('auctions/{store}/{product}', [AuctionController::class, 'auctionDetails'])->middleware('allow.guest');
 });
 
 // Utilities Routes
 Route::group(['prefix' => 'util'], function() {
     Route::get('user/auth/types', [UserAuthTypesController::class, 'index']);
     Route::get('user/roles', [UserRolesController::class, 'index']);
+
     Route::get('product/conditions', [ProductConditionsController::class, 'index']);
     Route::get('product/brands', [ProductBrandsController::class, 'index']);
     Route::get('product/categories', [CategoriesController::class, 'index']);
+
     Route::get('currencies', [CurrenciesController::class, 'index']);
 });
 
-// Public Routes
+// Public Routes - Authentication
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/account-verification/{token}', [AuthController::class, 'accountVerification']);

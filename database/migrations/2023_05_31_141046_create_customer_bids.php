@@ -15,7 +15,7 @@ class CreateCustomerBids extends Migration
     {
         Schema::create('customer_bids', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bid_id')->references('id')->on('bids');
+            $table->foreignId('auction_id')->references('id')->on('auctions');
             $table->foreignId('customer_id')->references('id')->on('customers');
             $table->integer('price');
             $table->dateTime('bidded_at');

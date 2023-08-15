@@ -10,9 +10,7 @@ use App\Http\Requests\v1\ProductStoreRequest;
 use App\Models\ProductImages;
 use App\Models\Stores;
 use App\Http\Helper\Helper;
-use App\Models\Bids;
-use Exception;
-use Illuminate\Support\Arr;
+use App\Models\Auctions;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -36,28 +34,6 @@ class ProductController extends Controller
             try {
                 $product = Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('store_id', $store->id)
                 ->orderByDesc('id')->paginate(10);
-            } catch(Throwable $e) {
-                return response()->json([
-                    'message' => $e->getMessage()
-                ], 401);
-            }
-        }
-
-        return $product;
-    }
-
-    public function indexAuction()
-    {
-        $customer_id = Auth::id();
-        $store = Stores::where('customer_id', $customer_id)->first();
-        $product = [];
-        
-        if($store) {
-            try {
-                $product = Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->withCount('participants')
-                    ->whereRelation('product','store_id', $store->id)
-                    ->orderByDesc('id')->paginate(10);
             } catch(Throwable $e) {
                 return response()->json([
                     'message' => $e->getMessage()
@@ -123,7 +99,7 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
-        $customer_id = Auth::id();;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
 
         if($store) {
@@ -220,7 +196,7 @@ class ProductController extends Controller
 
             $aprod = collect($product);
             $aprod->put('store_slug', Str::slug($aprod['store']['name']));
-            $customer_id = Auth::id();;
+            $customer_id = Auth::id();
             $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
             if($aprod['store']['slug'] === $mystore->slug) {
@@ -258,7 +234,7 @@ class ProductController extends Controller
             $aprod = collect($product);
             
             try {
-                $customer_id = Auth::id();;
+                $customer_id = Auth::id();
                 $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
 
                 if($aprod['store']['slug'] === $mystore->slug) {
@@ -291,7 +267,7 @@ class ProductController extends Controller
      */
     public function product($slug)
     {
-        $customer_id = Auth::id();;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
         //dd($store);
         try {
@@ -315,24 +291,6 @@ class ProductController extends Controller
         return Products::with('store','category','brand')->where('name','LIKE','%'.$key.'%')->get();
     }
 
-    public function storeSearch($key)
-    {
-        $customer_id = Auth::id();;
-        $store = Stores::where('customer_id', $customer_id)->first();
-
-        return Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('name','LIKE','%'.$key.'%')->where('store_id', $store->id)->paginate(10);
-    }
-
-    public function storeSearchAuction($key)
-    {
-        $customer_id = Auth::id();;
-        $store = Stores::where('customer_id', $customer_id)->first();
-        return Bids::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->whereRelation('product','store_id', $store->id)
-                    ->whereRelation('product', 'name', 'LIKE', '%'.$key.'%')
-                    ->orderByDesc('id')->paginate(10);
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -342,7 +300,7 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, $id)
     {
-        $customer_id = Auth::id();;
+        $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
         $files = [];
 
@@ -380,7 +338,7 @@ class ProductController extends Controller
                 return response()->json([
                     'message' => 'Saving product failed.',
                     'code' => $e->getCode()
-                ], 500);
+                ], $e->getCode());
             }   
 
             if($product) {
@@ -439,7 +397,16 @@ class ProductController extends Controller
      */
     public function destroyImage($id)
     {
-        //
-        return ProductImages::destroy($id);
+        try {
+            ProductImages::destroy($id);
+        } catch(Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+
+        return response()->json([
+            'message' => 'Image removed.'
+        ], 200);
     }
 }

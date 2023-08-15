@@ -7,6 +7,7 @@
                             <th>URI</th>
                             <th>Name</th>
                             <th>Headers</th>
+                            <th>Query String</th>
                             <th>Request Payload</th>
                             <th>Response</th>
                             <th>Authentication</th>
@@ -19,6 +20,11 @@
                                 <td>{{ $data->uri }}</td>
                                 <td>{{ $data->name }}</td>
                                 <td>{{ $data->headers }}</td>
+                                <td>
+                                @if(!empty($data->query))
+                                <pre class="text-left text-primary">{{ $data->query }}</pre>
+                                @endif
+                                </td>
                                 <td>  
                                 @if(!empty($data->payload))
                                 <pre class="text-left text-primary">{{ json_encode(json_decode($data->payload),JSON_PRETTY_PRINT) }}</pre>

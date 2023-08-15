@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class BidStatusSeeder extends Seeder
+class AuctionStatusSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +14,7 @@ class BidStatusSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('bid_status')->insert([
+        DB::table('auction_status')->insert([
             ['description' => 'Active'],
             ['description' => 'Finished'],
         ]);

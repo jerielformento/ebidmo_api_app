@@ -15,7 +15,19 @@ class ProductBrandsSeeder extends Seeder
     public function run()
     {
         DB::table('product_brands')->insert([
-            ['description' => 'FunkoPop'],
+            ['description' => 'Funko'],
+            ['description' => 'Nendoroid'],
+            ['description' => 'Cosbaby by Hot Toys'],
+            ['description' => 'Hot Toys'],
+            ['description' => 'McFarlane'],
+            ['description' => 'Bandai'],
+            ['description' => 'Banpresto'],
+            ['description' => 'Bear Brick'],
+            ['description' => 'Kotobokiya'],
+            ['description' => 'Iron Studios'],
+            ['description' => 'Mattel'],
+            ['description' => 'Hasbro'],
+            ['description' => 'Lego'],
         ]);
     }
 }

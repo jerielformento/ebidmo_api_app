@@ -58,10 +58,10 @@ class DocsController extends Controller
         ]);
     }
 
-    public function bid()
+    public function auction()
     {
-        $name = 'Bid';
-        $data = ApiDocs::where('router', 'bid')->get();
+        $name = 'Auction';
+        $data = ApiDocs::where('router', 'auction')->get();
 
         return view('docs.main', [
             'page' => ['name' => $name],

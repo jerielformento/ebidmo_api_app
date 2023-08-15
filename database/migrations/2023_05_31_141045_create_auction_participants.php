@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBidParticipants extends Migration
+class CreateAuctionParticipants extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateBidParticipants extends Migration
      */
     public function up()
     {
-        Schema::create('bid_participants', function (Blueprint $table) {
+        Schema::create('auction_participants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bid_id')->references('id')->on('bids');
+            $table->foreignId('auction_id')->references('id')->on('auctions');
             $table->foreignId('customer_id')->references('id')->on('customers');
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ class CreateBidParticipants extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bid_participants');
+        Schema::dropIfExists('auction_participants');
     }
 }

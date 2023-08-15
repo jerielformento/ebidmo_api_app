@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BidParticipants extends Model
+class AuctionParticipants extends Model
 {
     use HasFactory;
     public $timestamps = false;
     protected $fillable = [
-        'bid_id',
+        'auction_id',
         'customer_id'
     ];
 

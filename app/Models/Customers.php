@@ -60,6 +60,6 @@ class Customers extends Authenticatable
 
     public function won()
     {
-        $this->belongsTo(Bids::class);
+        $this->belongsTo(Auctions::class);
     }
 }

@@ -13,7 +13,7 @@ class CustomerBids extends Model
     public $timestamps = false;
     protected $table = 'customer_bids';
     protected $fillable = [
-        'bid_id',
+        'auction_id',
         'customer_id',
         'price',
         'bidded_at'
@@ -23,7 +23,7 @@ class CustomerBids extends Model
 
     public function bid()
     {
-        $this->belongsTo(Bids::class);
+        $this->belongsTo(Auctions::class);
     }
 
     public function customer()
