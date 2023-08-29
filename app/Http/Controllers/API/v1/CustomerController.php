@@ -28,7 +28,7 @@ class CustomerController extends Controller
         
         return Customers::with(
             'profile:customer_id,email,first_name,middle_name,last_name,phone',
-            'store:customer_id,slug,name'
+            'store:customer_id,slug,name,verified'
         )->where('id', $customer_id)->firstOrFail([
             'id',
             'username',
@@ -92,8 +92,8 @@ class CustomerController extends Controller
     {   
         $customer_id = Auth::id();
         $decrypted_id = decrypt($request->auction_id);
-        $bid = Auctions::findOrFail($decrypted_id);
-        $highest_bid = CustomerBids::where('auction_id', $bid->id)->orderByDesc('id')->first(['customer_id','price']);
+        $auction = Auctions::whereIn('status',[1,2])->findOrFail($decrypted_id);
+        $highest_bid = CustomerBids::where('auction_id', $auction->id)->orderByDesc('id')->first(['customer_id','price']);
         
         if($highest_bid) {
             if($highest_bid->customer_id === $customer_id) {
@@ -109,12 +109,23 @@ class CustomerController extends Controller
             ], 401);
         }
 
-        if($bid->ended_at < Carbon::now()) {
+        if($auction->ended_at < Carbon::now()) {
             return response()->json([
                 'message' => 'Auction has been ended!'
             ], 401);
-        }
+        } else {
+            // Anti-sniping feature
+            /* $ended_at = Carbon::parse($auction->ended_at);
+            $now = Carbon::now();
+            $diff = $ended_at->diffInMinutes($now);
 
+            if($diff <= 2) {
+                Auctions::where('id', $auction->id)->update([
+                    'ended_at' => Carbon::parse($auction->ended_at)->addMinutes(2)->format('Y-m-d H:i:s')
+                ]);
+            } */
+        }
+        
         try {
             CustomerBids::create([
                 'auction_id' => $decrypted_id,
@@ -199,9 +210,8 @@ class CustomerController extends Controller
     public function history($id)
     {
         $customer_id = Auth::id();
-        return CustomerBids::where('customer_id', $customer_id)
-        ->where('auction_id', decrypt($id))
-        ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price']);
+        return CustomerBids::with('customer:id,username')->where('auction_id', decrypt($id))
+        ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price', 'customer_id']);
     }
 
 }

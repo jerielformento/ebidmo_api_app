@@ -30,6 +30,7 @@ class ProductStoreRequest extends FormRequest
             'condition' => 'required|integer',
             'brand' => 'required|integer',
             'category' => 'required|integer',
+            'location' => 'required|integer',
             //'price' => 'required|integer',
             'images.*' => 'required|mimes:jpeg,png,jpg'
         ];

@@ -2,10 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Bids;
+use App\Mail\WinnerAcknowledgement;
+use App\Models\Auctions;
 use App\Models\CustomerBids;
+use App\Models\Customers;
+use App\Models\CustomersProfile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class AuctionComplete extends Command
@@ -41,25 +45,29 @@ class AuctionComplete extends Command
      */
     public function handle()
     {
-        $bids = Bids::where('ended_at','<',Carbon::now())
-            ->whereIn('status', [1,2])->get();
+        $auctions = Auctions::with('product', 'product.store')->where('ended_at','<',Carbon::now())
+            ->where('status', 1)->get();
 
-        foreach($bids as $bid) {
-            $highest = CustomerBids::where('bid_id', $bid->id)->orderByDesc('price')->limit(1)->first();
+        foreach($auctions as $auction) {
+            $highest = CustomerBids::where('auction_id', $auction->id)->orderByDesc('price')->limit(1)->first();
             if($highest) {
                 try {
-                    Bids::where('id', $bid->id)->update([
+                    Auctions::where('id', $auction->id)->update([
                         'won_by' => $highest->customer_id,
-                        'status' => 0
+                        'status' => 4
                     ]);
+
+                    $winner = CustomersProfile::where('customer_id', $highest->customer_id)->first(['email']);
+                    $verif_token = md5($auction->id.Carbon::now()->timestamp);
+                    Mail::send(new WinnerAcknowledgement($winner->email, $verif_token, $auction->product->name, $auction->product->store->name, $highest->price));
 
                     echo "updated ";
                 } catch(Throwable $e) {
                     echo "error ";
                 }
             } else {
-                Bids::where('id', $bid->id)->update([
-                    'status' => 0
+                Auctions::where('id', $auction->id)->update([
+                    'status' => 4
                 ]);
             }
         }

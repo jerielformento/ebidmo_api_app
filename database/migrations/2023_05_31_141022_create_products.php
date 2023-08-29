@@ -24,6 +24,7 @@ class CreateProducts extends Migration
             $table->foreignId('category')->references('id')->on('categories');
             $table->foreignId('brand')->references('id')->on('product_brands');
             $table->foreignId('currency')->references('id')->on('currencies');
+            $table->foreignId('item_location')->references('id')->on('item_locations');
             $table->integer('price')->nullable();
             $table->integer('rating')->nullable();
             $table->dateTime('created_at');

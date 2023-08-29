@@ -24,16 +24,17 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->first();
-        $product = [];
+        $per_page = $request->per_page ? (int)$request->per_page : 10;
 
+        $product = [];
         if($store) {
             try {
-                $product = Products::with('thumbnail','brand','condition','category','currency','bid','store')->where('store_id', $store->id)
-                ->orderByDesc('id')->paginate(10);
+                $product = Products::with('thumbnail','brand','condition','category','currency','auction','store')->where('store_id', $store->id)
+                ->orderByDesc('id')->paginate($per_page);
             } catch(Throwable $e) {
                 return response()->json([
                     'message' => $e->getMessage()
@@ -131,6 +132,7 @@ class ProductController extends Controller
                     'condition' => $request->condition,
                     'brand' => $request->brand,
                     'category' => $request->category,
+                    'item_location' => $request->location,
                     'currency' => 1,
                     //'price' => $request->price,
                     //'quantity' => $request->quantity,
@@ -223,9 +225,9 @@ class ProductController extends Controller
     {
         $append_product = [];
         try {
-            $product = Products::with('images:id,product_id,filename,url,mime_type,size','store','brand','condition','category','currency')
+            $product = Products::with('images:id,product_id,filename,url,mime_type,size','brand','category','condition','item_location','store','currency')
             ->where('slug', $product)
-            ->first(['id','name','slug','details','brand','condition','category','currency','created_at','store_id']);
+            ->first(['id','name','slug','details','brand','condition','category','item_location','currency','created_at','store_id']);
             
             if(!$product) {
                 return response()->json(['message'=> 'Item not found.'], 401);
@@ -330,6 +332,7 @@ class ProductController extends Controller
                     'condition' => $request->condition,
                     'brand' => $request->brand,
                     'category' => $request->category,
+                    'item_location' => $request->location,
                     //'price' => $request->price,
                     //'quantity' => $request->quantity,
                     'updated_at' => Carbon::now()->toDateTime()

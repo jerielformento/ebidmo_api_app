@@ -19,7 +19,8 @@ class Auctions extends Model
         'started_at',
         'ended_at',
         'increment_by',
-        'status'
+        'status',
+        'type'
     ];
 
     protected $hidden = ['product_id', 'won_by'];

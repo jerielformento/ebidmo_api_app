@@ -16,7 +16,9 @@ class AuctionStatusSeeder extends Seeder
     {
         DB::table('auction_status')->insert([
             ['description' => 'Active'],
-            ['description' => 'Finished'],
+            ['description' => 'Waiting'],
+            ['description' => 'Cancelled'],
+            ['description' => 'Completed'],
         ]);
     }
 }

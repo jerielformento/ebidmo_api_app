@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\AuctionFutureStoreRequest;
 use App\Http\Requests\v1\AuctionStoreRequest;
 use App\Models\Auctions;
 use App\Models\CustomerBids;
@@ -61,6 +62,7 @@ class AuctionController extends Controller
                     ->withCount('participants')
                     ->whereIn('status', [1,2])
                     ->whereRelation('product','category', $request->category)
+                    ->orderBy('status')
                     ->inRandomOrder()->limit(16)->get(); 
             } else {
                 $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
@@ -69,14 +71,14 @@ class AuctionController extends Controller
                     })
                     ->whereRelation('product','category', $request->category)
                     ->withCount('participants')
-                    ->whereIn('status', [1,2])
+                    ->whereIn('status', [1,2])->orderBy('status')
                     ->inRandomOrder()->inRandomOrder()->limit(16)->get(); 
             }
         } else {
             if(!$request->brand) {
                 $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
                     ->withCount('participants')
-                    ->whereIn('status', [1,2])
+                    ->whereIn('status', [1,2])->orderBy('status')
                     ->inRandomOrder()->limit(16)->get(); 
             } else {
                 $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
@@ -84,7 +86,7 @@ class AuctionController extends Controller
                         $query->whereIn('brand', $brands);
                     })
                     ->withCount('participants')
-                    ->whereIn('status', [1,2])
+                    ->whereIn('status', [1,2])->orderBy('status')
                     ->inRandomOrder()->limit(16)->get(); 
             }
         }
@@ -113,7 +115,6 @@ class AuctionController extends Controller
         if($bid->count() === 0) {
             try {
                 $buy_now_price = 0;
-                $bid_status = ($request->min_participants > 0) ? 2 : 1;
 
                 if(!empty($request->buy_now_price) && $request->buy_now_price !== 0) {
                     if($request->buy_now_price > $request->min_price) {
@@ -133,9 +134,10 @@ class AuctionController extends Controller
                     'min_participants' => $request->min_participants,
                     'currency' => 1,
                     'increment_by' => $request->increment_price,
-                    'started_at' => Carbon::now()->toDateTime(),
-                    'ended_at' => $request->expiration,
-                    'status' => $bid_status
+                    'started_at' => Carbon::now()->addDay()->toDateTime(),
+                    'ended_at' => $request->end_date,
+                    'status' => 2,
+                    'type' => $request->type
                 ]);
                 
             } catch(Throwable $e) {
@@ -153,6 +155,61 @@ class AuctionController extends Controller
             'message' => 'Product has been published and ready for bidding.'
         ], 201);
     }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeFuture(AuctionFutureStoreRequest $request)
+    {
+        $product = Products::where('slug', $request->slug)->firstOrFail(['id']);
+        $bid = Auctions::where('product_id', $product->id)->where('status', 1)->get();
+        if($bid->count() === 0) {
+            try {
+                $buy_now_price = 0;
+
+                if(!empty($request->buy_now_price) && $request->buy_now_price !== 0) {
+                    if($request->buy_now_price > $request->min_price) {
+                        $buy_now_price = $request->buy_now_price;
+                    } else {
+                        return response()->json([
+                            'message' => 'Buy now price should be higher than starting bid.'
+                        ], 201);
+                    }
+                }
+
+                Auctions::create([
+                    'product_id' => $product->id,
+                    'min_price' => $request->min_price,
+                    'buy_now_price' => $buy_now_price,
+                    //'currency' => $request->currency,
+                    'min_participants' => $request->min_participants,
+                    'currency' => 1,
+                    'increment_by' => $request->increment_price,
+                    'started_at' => $request->start_date,
+                    'ended_at' => $request->end_date,
+                    'status' => 2,
+                    'type' => $request->type
+                ]);
+                
+            } catch(Throwable $e) {
+                return response()->json([
+                    'message' => $e->getMessage()
+                ], 401);
+            }
+        } else {
+            return response()->json([
+                'message' => 'This product is currently active in auctioned.'
+            ], 401);
+        }
+
+        return response()->json([
+            'message' => 'Product has been published and ready for bidding.'
+        ], 201);
+    }
+
 
     /**
      * Display the specified resource.
@@ -201,9 +258,9 @@ class AuctionController extends Controller
         $customer_id = (Auth::check()) ? Auth::id() : null;
         
         $products = Products::with(['images',
-            'bid' => function($query) {
-                $query->withCount('participants');
-            }, 'bid.highest','store','bid.currency', 'brand', 'condition', 'category', 'bid.participants' => function($query) use($customer_id) {
+            'auction' => function($query) {
+                $query->withCount('participants')->whereIn('status', [1,2]);
+            }, 'auction.highest','store','auction.currency','brand','condition','category','item_location','auction.participants' => function($query) use($customer_id) {
                 $query->where('customer_id', $customer_id);
             }])
             ->where('slug', $product)
@@ -211,7 +268,7 @@ class AuctionController extends Controller
 
         if($products) {
             $aproducts = collect($products)->map(function($prod, $key) {
-                if($key === 'bid' && $prod['id'] !== null) {
+                if($key === 'auction' && $prod['id'] !== null) {
                     $prod['id'] = encrypt($prod['id']);
                     $prod['joiner'] = (count($prod['participants']) > 0) ? true : false;
                     unset($prod['highest']['auction_id']);
@@ -261,7 +318,7 @@ class AuctionController extends Controller
      */
     public function auction($slug)
     {
-        return Products::with('images', 'store', 'bid', 'condition', 'brand', 'category', 'bid.currency')->where('slug', $slug)->first();
+        return Products::with('images', 'store', 'auction', 'condition', 'brand', 'category', 'item_location', 'auction.currency')->where('slug', $slug)->first();
     }
 
     /**

@@ -23,7 +23,8 @@ class CreateAuctions extends Migration
             $table->dateTime('ended_at');
             $table->integer('increment_by');
             $table->integer('status');
-            $table->integer('min_participants');
+            $table->integer('min_participants')->nullable();
+            $table->foreignId('type')->nullable()->references('id')->on('auction_types');
             $table->foreignId('won_by')->nullable()->references('id')->on('customers');
         });
     }

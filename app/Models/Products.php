@@ -20,6 +20,7 @@ class Products extends Model
         'condition',
         'category',
         'brand',
+        'item_location',
         'currency',
         'created_at',
         'updated_at'
@@ -42,7 +43,7 @@ class Products extends Model
         return $this->hasOne(ProductImages::class, 'product_id', 'id');
     }
 
-    public function bid()
+    public function auction()
     {
         return $this->hasOne(Auctions::class, 'product_id', 'id')->where('status', 1)->orWhere('status', 2);
     }
@@ -65,6 +66,11 @@ class Products extends Model
     public function condition()
     {
         return $this->belongsTo(ProductConditions::class, 'condition', 'id');
+    }
+
+    public function item_location()
+    {
+        return $this->belongsTo(ItemLocations::class, 'item_location', 'id');
     }
 
     public function currency()

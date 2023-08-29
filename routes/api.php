@@ -7,6 +7,7 @@ use App\Http\Controllers\API\v1\StoreController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CurrenciesController;
+use App\Http\Controllers\ItemLocationsController;
 use App\Http\Controllers\ProductBrandsController;
 use App\Http\Controllers\ProductConditionsController;
 use App\Http\Controllers\UserAuthTypesController;
@@ -51,6 +52,7 @@ Route::group([
     // Auctions
     Route::resource('auctions', AuctionController::class)->except(['all','show','auctionDetails','activity']);
     Route::get('auction/activity/{id}', [AuctionController::class, 'activity']);
+    Route::post('auctions/future', [AuctionController::class, 'storeFuture']);
 });
 
 Route::group(['prefix'=>'v1'], function() {
@@ -80,12 +82,14 @@ Route::group(['prefix' => 'util'], function() {
     Route::get('product/conditions', [ProductConditionsController::class, 'index']);
     Route::get('product/brands', [ProductBrandsController::class, 'index']);
     Route::get('product/categories', [CategoriesController::class, 'index']);
+    Route::get('product/locations', [ItemLocationsController::class, 'index']);
 
     Route::get('currencies', [CurrenciesController::class, 'index']);
 });
 
 // Public Routes - Authentication
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/authenticate', [AuthController::class, 'authRegister']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/account-verification/{token}', [AuthController::class, 'accountVerification']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

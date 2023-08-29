@@ -17,7 +17,14 @@ class CategoriesSeeder extends Seeder
         DB::table('categories')->insert([
             ['title' => 'Anime'],
             ['title' => 'Marvel'],
-            ['title' => 'Other'],
+            ['title' => 'DC'],
+            ['title' => 'Disney'],
+            ['title' => 'Star Wars'],
+            ['title' => 'Transformer'],
+            ['title' => 'Ninja Turtle'],
+            ['title' => 'Exclusives'],
+            ['title' => 'New Arrival'],
+            ['title' => 'Others'],
         ]);
     }
 }

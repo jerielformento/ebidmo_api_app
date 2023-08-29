@@ -84,13 +84,15 @@ class StoreController extends Controller
     {
         if($request->only('search') && !empty($request->search)) {
             return Auctions::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
-            ->where('ended_at','>',Carbon::now())
+            ->withCount('participants')
+            ->whereIn('status', [1,2])
             ->whereRelation('product','name','LIKE','%'.$request->search.'%')
             ->whereRelation('product.store','slug', $store)
             ->limit(20)->get();
         } else {
             return Auctions::with('product','product.thumbnail','product.brand','product.condition','product.currency','highest','product.store')
-                ->where('ended_at','>',Carbon::now())
+                ->withCount('participants')
+                ->whereIn('status', [1,2])
                 ->whereRelation('product.store','slug', $store)
                 ->limit(20)->get();
         }

@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuctionStoreRequest extends FormRequest
+class AuctionFutureStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,11 @@ class AuctionStoreRequest extends FormRequest
         return [
             'slug' => 'required|string',
             'min_price' => 'required|integer',
+            'min_participants' => 'required|integer',
             'buy_now_price' => 'required|integer|nullable',
             'increment_price' => 'required|integer',
-            'end_date' => 'required|date|after:tomorrow',
+            'start_date' => 'required|date|before:end_date|after:tomorrow',
+            'end_date' => 'required|date|after:start_date',
             'type' => 'required|integer'
         ];
     }

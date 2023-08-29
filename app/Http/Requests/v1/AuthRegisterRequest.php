@@ -28,7 +28,7 @@ class AuthRegisterRequest extends FormRequest
             'firstname' => 'required|regex:/^[a-zA-Z .]+$/u',
             'lastname' => 'required|regex:/^[a-zA-Z .]+$/u',
             'middlename' => 'sometimes|regex:/^[a-zA-Z ]+$/u|nullable',
-            'phone' => 'required|alpha_num',
+            'phone' => 'sometimes|alpha_num|nullable',
             'email' => 'required|regex:/^[a-zA-Z.-_@]+$/u|unique:customers_profile,email',
             'password' => 'required|string|confirmed'
         ];
