@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
 use App\Mail\AccountVerification;
 use App\Mail\WinnerAcknowledgement;
 use App\Models\Auctions;
@@ -46,6 +47,7 @@ Route::get('/ebidmo-admin', [AdminController::class, 'index']);
 Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
 });
+
 Route::get('/linkstorage', function () {
     $targetFolder = base_path().'/storage/app/public';
     $linkFolder = $_SERVER['DOCUMENT_ROOT'].'/storage';

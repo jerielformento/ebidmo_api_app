@@ -47,58 +47,48 @@ class AuctionController extends Controller
 
     public function all(Request $request)
     {
-
+        $categories = [];
         $brands = [];
+
         if($request->brand) {
             foreach($request->brand as $brand) {
                 array_push($brands, $brand);
             }
         }
-        
-        //echo '('.implode(",",$brands).')'; die;
-        if(!empty($request->category)) {
-            if(!$request->brand) {
-                $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->withCount('participants')
-                    ->whereIn('status', [1,2])
-                    ->whereRelation('product','category', $request->category)
-                    ->orderBy('status')
-                    ->inRandomOrder()->limit(16)->get(); 
-            } else {
-                $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->whereHas('product', function($query) use($brands) {
-                        $query->whereIn('brand', $brands);
-                    })
-                    ->whereRelation('product','category', $request->category)
-                    ->withCount('participants')
-                    ->whereIn('status', [1,2])->orderBy('status')
-                    ->inRandomOrder()->inRandomOrder()->limit(16)->get(); 
-            }
-        } else {
-            if(!$request->brand) {
-                $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->withCount('participants')
-                    ->whereIn('status', [1,2])->orderBy('status')
-                    ->inRandomOrder()->limit(16)->get(); 
-            } else {
-                $bids = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
-                    ->whereHas('product', function($query) use($brands) {
-                        $query->whereIn('brand', $brands);
-                    })
-                    ->withCount('participants')
-                    ->whereIn('status', [1,2])->orderBy('status')
-                    ->inRandomOrder()->limit(16)->get(); 
+
+        if($request->category) {
+            foreach($request->category as $category) {
+                array_push($categories, $category);
             }
         }
 
-        $abids = collect($bids);
-        $append_bids = [];
-        foreach($abids as $bid) {
-            $abid = collect($bid);
-            $append_bids[] = $abid;
+        $auction = Auctions::with('product','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store')
+                ->withCount('participants')
+                ->whereIn('status', [1,2])
+                ->when($request->filter != null, function($query) use($request) { 
+                    $query->where('type', $request->filter);
+                })
+                ->when($request->category, function($query) use($categories) {
+                    $query->whereHas('product',function($qquery) use($categories) {
+                        $qquery->whereIn('category', $categories);
+                    });
+                })
+                ->when($request->brand, function($query) use($brands) {
+                    $query->whereHas('product',function($qquery) use($brands) {
+                        $qquery->whereIn('brand', $brands);
+                    });
+                })
+                ->orderBy('status')
+                ->inRandomOrder()->limit(16)->get(); 
+
+        $aauctions = collect($auction);
+        $append_auctions = [];
+        foreach($aauctions as $auction) {
+            $aauction = collect($auction);
+            $append_auctions[] = $aauction;
         }
 
-        return $append_bids;
+        return $append_auctions;
         //return Products::with('images:id,product_id,url','store:id,name','bid')->get();
     }
 
@@ -262,7 +252,7 @@ class AuctionController extends Controller
                 $query->withCount('participants')->whereIn('status', [1,2]);
             }, 'auction.highest','store','auction.currency','brand','condition','category','item_location','auction.participants' => function($query) use($customer_id) {
                 $query->where('customer_id', $customer_id);
-            }])
+            },'thumbnail'])
             ->where('slug', $product)
             ->first();
 
@@ -336,7 +326,7 @@ class AuctionController extends Controller
 
     public function activity($id)
     {
-        return CustomerBids::with('customer:id,username')->where('auction_id', $id)
+        return CustomerBids::with('customer:id,username','customer.profile:customer_id,first_name,last_name')->where('auction_id', $id)
             ->orderByDesc('id')
             ->limit(5)
             ->get(['bidded_at as time', 'price', 'customer_id']);

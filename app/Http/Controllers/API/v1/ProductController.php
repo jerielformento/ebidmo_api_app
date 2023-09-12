@@ -48,6 +48,12 @@ class ProductController extends Controller
     public function all(Request $request)
     {
         
+        $categories = [];
+        if($request->category) {
+            foreach($request->category as $category) {
+                array_push($categories, $category);
+            }
+        }
         $brands = [];
         if($request->brand) {
             foreach($request->brand as $brand) {
@@ -55,26 +61,14 @@ class ProductController extends Controller
             }
         }
 
-        if(!empty($request->category)) {
-            if(!empty($brands)) {
-                return Products::with('thumbnail','brand','condition','category','currency','store')
-                    ->whereRelation('category', 'id', $request->category)
-                    ->whereIn('brand', $brands)
+        return Products::with('thumbnail','brand','condition','category','currency','store')
+                    ->when($request->brand, function($query) use($brands) {
+                        $query->whereIn('brand', $brands);
+                    })
+                    ->when($request->category, function($query) use($categories) {
+                        $query->whereIn('category', $categories);
+                    })
                     ->inRandomOrder()->limit(20)->get(); 
-            } else {
-                return Products::with('thumbnail','brand','condition','category','currency','store')
-                    ->whereRelation('category', 'id', $request->category)
-                    ->inRandomOrder()->limit(20)->get(); 
-            }
-        } else {
-            if(!empty($brands)) {
-                return Products::with('thumbnail','brand','condition','category','currency','store')
-                ->whereIn('brand', $brands)
-                ->inRandomOrder()->limit(20)->get(); 
-            } else {
-                return Products::with('thumbnail','brand','condition','category','currency','store')->inRandomOrder()->limit(20)->get(); 
-            }
-        }
     }
 
     public function suggestions($store)
@@ -225,7 +219,7 @@ class ProductController extends Controller
     {
         $append_product = [];
         try {
-            $product = Products::with('images:id,product_id,filename,url,mime_type,size','brand','category','condition','item_location','store','currency')
+            $product = Products::with('images:id,product_id,filename,url,mime_type,size','brand','category','condition','item_location','store','currency','thumbnail')
             ->where('slug', $product)
             ->first(['id','name','slug','details','brand','condition','category','item_location','currency','created_at','store_id']);
             

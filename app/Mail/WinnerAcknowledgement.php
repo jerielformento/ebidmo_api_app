@@ -38,7 +38,7 @@ class WinnerAcknowledgement extends Mailable
      */
     public function build()
     {
-        $url = config('app.frontend_url').'/me/profile/acknowledgement?key='.$this->acknowledgement_link;
+        $url = config('app.frontend_url').'/me/profile/transactions/checkout/'.$this->acknowledgement_link;
 
         return $this
             ->from('noreply@ebidmo.net')

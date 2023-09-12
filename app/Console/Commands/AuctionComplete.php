@@ -4,11 +4,13 @@ namespace App\Console\Commands;
 
 use App\Mail\WinnerAcknowledgement;
 use App\Models\Auctions;
+use App\Models\AuctionWinnerAcknowledgement;
 use App\Models\CustomerBids;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -57,8 +59,21 @@ class AuctionComplete extends Command
                         'status' => 4
                     ]);
 
-                    $winner = CustomersProfile::where('customer_id', $highest->customer_id)->first(['email']);
                     $verif_token = md5($auction->id.Carbon::now()->timestamp);
+                    $current_datetime = Carbon::now();
+                    $ended_datetime = Carbon::parse($current_datetime->format('Y-m-d H:i:s'))->addHours(2)->format('Y-m-d H:i:s');
+
+                    AuctionWinnerAcknowledgement::create([
+                        'auction_id' => $auction->id,
+                        'customer_id' => $highest->customer_id,
+                        'url_token' => $verif_token,
+                        'status' => 0,
+                        'started_at' => $current_datetime->format('Y-m-d H:i:s'),
+                        'ended_at' => $ended_datetime,
+                    ]);
+                   
+                    $winner = CustomersProfile::where('customer_id', $highest->customer_id)->first(['email']);
+                    
                     Mail::send(new WinnerAcknowledgement($winner->email, $verif_token, $auction->product->name, $auction->product->store->name, $highest->price));
 
                     echo "updated ";

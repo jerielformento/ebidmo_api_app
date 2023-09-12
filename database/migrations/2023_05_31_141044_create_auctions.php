@@ -26,6 +26,7 @@ class CreateAuctions extends Migration
             $table->integer('min_participants')->nullable();
             $table->foreignId('type')->nullable()->references('id')->on('auction_types');
             $table->foreignId('won_by')->nullable()->references('id')->on('customers');
+            $table->foreignId('bought_by')->nullable()->references('id')->on('customers'); 
         });
     }
 

@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\API\v1\AuctionController;
 use App\Http\Controllers\API\v1\CustomerController;
+use App\Http\Controllers\API\v1\PaymentController;
 use App\Http\Controllers\API\v1\ProductController;
 use App\Http\Controllers\API\v1\StoreController;
+use App\Http\Controllers\API\v1\VendorController;
+use App\Http\Controllers\AuctionTypesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CurrenciesController;
@@ -33,12 +36,17 @@ Route::group([
     // Customers
     Route::resource('customer', CustomerController::class);
     Route::post('customer/bid', [CustomerController::class, 'bid']);
+    Route::post('customer/buy', [CustomerController::class, 'buy']);
     Route::post('customer/bid/join', [CustomerController::class, 'joinBid']);
     Route::get('customer/auction/{id}', [AuctionController::class, 'auction']);
     Route::get('customer/auction/bid/{id}', [AuctionController::class, 'auctionBid']);
     Route::get('customer/product/{id}', [ProductController::class, 'product']);
     Route::get('customer/bid/history/{id}', [CustomerController::class, 'history']);
-    
+    Route::get('customer/transactions/bids', [CustomerController::class, 'activities']);
+    Route::get('customer/transactions/wins', [CustomerController::class, 'transactions']);
+    Route::get('customer/transactions/checkout/{token}', [CustomerController::class, 'checkout']);
+    Route::get('payment/transaction/{token}', [PaymentController::class, 'checkout']);
+
     // Products
     Route::resource('products', ProductController::class)->except(['all','show']);
     Route::delete('products/image/{id}', [ProductController::class, 'destroyImage']);
@@ -53,6 +61,9 @@ Route::group([
     Route::resource('auctions', AuctionController::class)->except(['all','show','auctionDetails','activity']);
     Route::get('auction/activity/{id}', [AuctionController::class, 'activity']);
     Route::post('auctions/future', [AuctionController::class, 'storeFuture']);
+
+    //Route::resource('vendor', VendorController::class);
+    Route::get('vendor/transactions', [VendorController::class, 'transactions']);
 });
 
 Route::group(['prefix'=>'v1'], function() {
@@ -84,6 +95,7 @@ Route::group(['prefix' => 'util'], function() {
     Route::get('product/categories', [CategoriesController::class, 'index']);
     Route::get('product/locations', [ItemLocationsController::class, 'index']);
 
+    Route::get('auction/types', [AuctionTypesController::class, 'index']);
     Route::get('currencies', [CurrenciesController::class, 'index']);
 });
 

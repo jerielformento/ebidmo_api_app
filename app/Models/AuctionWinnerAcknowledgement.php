@@ -4,27 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 
-class CustomerBids extends Model
+class AuctionWinnerAcknowledgement extends Model
 {
     use HasFactory;
-
+    protected $table = 'auction_winner_acknowledgement';
     public $timestamps = false;
-    protected $table = 'customer_bids';
     protected $fillable = [
         'auction_id',
         'customer_id',
-        'price',
-        'bidded_at'
+        'url_token',
+        'status',
+        'started_at',
+        'ended_at'
     ];
-
-    protected $hidden = ['id','customer_id'];
-
-    public function bid()
-    {
-        $this->belongsTo(Auctions::class);
-    }
 
     public function customer()
     {
@@ -35,5 +28,4 @@ class CustomerBids extends Model
     {
         return $this->hasOne(Auctions::class, 'id', 'auction_id');
     }
-    
 }

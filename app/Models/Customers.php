@@ -62,4 +62,9 @@ class Customers extends Authenticatable
     {
         $this->belongsTo(Auctions::class);
     }
+
+    public function acknowledgement()
+    {
+        return $this->belongsTo(AuctionWinnerAcknowledgement::class, 'auction_id');
+    }
 }

@@ -10,6 +10,7 @@ use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
 use App\Models\AuctionParticipants;
 use App\Models\Auctions;
+use App\Models\AuctionWinnerAcknowledgement;
 use App\Models\CustomerBids;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -207,11 +208,78 @@ class CustomerController extends Controller
         ], 201);
     }
 
+    /**
+     * Buy an auction item
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function buy()
+    {
+        
+    }
+
     public function history($id)
     {
         $customer_id = Auth::id();
-        return CustomerBids::with('customer:id,username')->where('auction_id', decrypt($id))
+        return CustomerBids::with('customer:id','customer.profile:customer_id,first_name,last_name')->where('auction_id', decrypt($id))
         ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price', 'customer_id']);
+    }
+
+    public function activities()
+    {
+        $customer_id = Auth::id();
+        return CustomerBids::with(
+            'customer:id,username',
+            'auction',
+            'auction.product',
+            'auction.product.thumbnail',
+            'auction.product.category',
+            'auction.product.brand',
+            'auction.product.condition',
+            'auction.product.store'
+        )->where('customer_id', $customer_id)
+        ->orderByDesc('id')->paginate(10);
+    }
+
+    public function transactions()
+    {
+        $customer_id = Auth::id();
+        return AuctionWinnerAcknowledgement::with([
+            'customer',
+            'auction',
+            'auction.product',
+            'auction.product.thumbnail',
+            'auction.product.store',
+            'auction.product.category',
+            'auction.product.brand',
+            'auction.highest',
+            'auction.currency'
+        ])
+        ->whereRelation('auction.highest', 'customer_id', '=', $customer_id)
+        ->where('customer_id', $customer_id)
+        ->orderByDesc('id')->paginate(10);
+    }
+
+    public function checkout($token)
+    {
+        $customer_id = Auth::id();
+        return AuctionWinnerAcknowledgement::with([
+            'customer',
+            'auction',
+            'auction.product',
+            'auction.product.images',
+            'auction.product.store',
+            'auction.product.category',
+            'auction.product.brand',
+            'auction.highest',
+            'auction.currency'
+        ])
+        ->whereRelation('auction.highest', 'customer_id', '=', $customer_id)
+        ->where([
+            'customer_id' => $customer_id,
+            'url_token' => $token
+        ])->first();
     }
 
 }
