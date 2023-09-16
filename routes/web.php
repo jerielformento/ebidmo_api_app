@@ -9,7 +9,9 @@ use App\Mail\WinnerAcknowledgement;
 use App\Models\Auctions;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
+use App\Models\PaymentTransactions;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +48,29 @@ Route::group(['prefix' => 'api-docs'], function() {
 Route::get('/ebidmo-admin', [AdminController::class, 'index']);
 Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
+});
+
+Route::post('/payment-webhook', function(Request $request) {
+    try {
+        PaymentTransactions::create([
+            'payment_id' => $request->payment_id,
+            'payment_request_id' => $request->payment_request_id,
+            'phone' => $request->phone,
+            'amount' => $request->amount,
+            'currency' => $request->currency,
+            'status' => $request->status,
+            'reference_number' => $request->reference_number,
+            'hmac' => $request->hmac
+        ]);
+    } catch(Throwable $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 301);
+    }
+    
+    return response()->json([
+        'message' => 'Success'
+    ], 201);
 });
 
 Route::get('/linkstorage', function () {

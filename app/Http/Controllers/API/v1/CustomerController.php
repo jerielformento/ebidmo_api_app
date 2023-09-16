@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Customers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\CustomerBidRequest;
+use App\Http\Requests\v1\CustomerBuyAuctionRequest;
 use App\Http\Requests\v1\CustomerJoinBidRequest;
 use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
@@ -214,9 +215,26 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function buy()
+    public function buy(CustomerBuyAuctionRequest $request)
     {
-        
+        $customer_id = Auth::id();
+        $decrypted_id = decrypt($request->auction_id);
+
+        try {
+            Auctions::where('id', $decrypted_id)->update([
+                'status' => 4,
+                'bought_by' => $customer_id
+            ]);
+        } catch(Throwable $e) {
+            return response()->json([
+                'message' => 'Error',
+                'error' => $e->getMessage()
+            ], 401);
+        }
+
+        return response()->json([
+            'message' => 'You have successfully bought an auction item!'
+        ], 201);
     }
 
     public function history($id)

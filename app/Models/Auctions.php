@@ -60,6 +60,11 @@ class Auctions extends Model
         return $this->hasOne(Customers::class, 'id', 'won_by');
     }
 
+    public function purchase()
+    {
+        return $this->hasOne(Customers::class, 'id', 'bought_by');
+    }
+
     public function bid()
     {
         return $this->belongsTo(CustomerBids::class, 'auction_id');

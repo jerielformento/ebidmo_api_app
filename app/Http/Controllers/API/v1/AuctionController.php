@@ -294,7 +294,7 @@ class AuctionController extends Controller
         } else {
             return response()->json([
                 'message' => 'Product not found.'
-            ], 201);
+            ], 401);
         }
         
         return $aproducts;
@@ -319,9 +319,21 @@ class AuctionController extends Controller
      */
     public function auctionBid($id)
     {
-        return Auctions::with('product','winner:id,username','product.thumbnail','product.brand','product.condition','product.category','product.currency','highest','product.store','currency')
-            ->where('id', $id)
-            ->first();
+        return Auctions::with(
+            'product',
+            'winner:id,username',
+            'product.thumbnail',
+            'product.brand',
+            'product.condition',
+            'product.category',
+            'product.currency',
+            'highest',
+            'product.store',
+            'currency',
+            'purchase:id,username'
+        )
+        ->where('id', $id)
+        ->first();
     }
 
     public function activity($id)

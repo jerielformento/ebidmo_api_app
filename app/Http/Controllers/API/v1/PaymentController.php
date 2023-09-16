@@ -33,9 +33,9 @@ class PaymentController extends Controller
             'currency' => $item['auction']['currency']['code'],
             'email' => $item['customer']['username'],
             'payment_methods' => ['upay_gcash'],
-            'redirect_url' => 'http://localhost/api-docs'
+            'redirect_url' => env('FRONTEND_URL').'/me/profile/transactions',
+            'webhook' => env('APP_URL').'/payment-webhook'
         ];
-        
 
         $curl = curl_init();
         curl_setopt_array($curl, [

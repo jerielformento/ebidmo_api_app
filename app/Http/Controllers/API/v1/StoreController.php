@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Products;
 use App\Http\Helper\Helper;
 use App\Models\Auctions;
+use App\Models\AuctionWinnerAcknowledgement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
@@ -135,10 +136,13 @@ class StoreController extends Controller
             $count_products += $store['products_count'];
         }
 
+        $transactions = AuctionWinnerAcknowledgement::with('auction', 'auction.product')
+        ->whereRelation('auction.product', 'store_id', '=', $store->id)->count();
+
         return response()->json([
             'products_count' => $count_products,
             'auctions_count' => $count_bids,
-            'transactions_count' => 0
+            'transactions_count' => $transactions
         ]);
     }
 
