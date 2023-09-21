@@ -5,26 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentTransactions extends Model
+class ShipmentTransactions extends Model
 {
     use HasFactory;
     protected $fillable = [
         'acknowledgement_token',
-        'checkout_id',
-        'payment_id',
-        'payment_method_used',
-        'amount',
-        'currency',
+        'full_name',
+        'address',
+        'contact',
+        'courier',
         'status'
     ];
 
     protected $hidden = [
-        'id',
-        'payment_id',
-        'checkout_id',
-        'acknowledgement_token',
-        'updated_at'
+        'id'
     ];
+
+    public function courier()
+    {
+        return $this->belongsTo(Couriers::class, 'courier', 'id');
+    }
 
     public function acknowledgement()
     {

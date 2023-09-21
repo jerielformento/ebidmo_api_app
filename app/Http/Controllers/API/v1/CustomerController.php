@@ -9,10 +9,14 @@ use App\Http\Requests\v1\CustomerBuyAuctionRequest;
 use App\Http\Requests\v1\CustomerJoinBidRequest;
 use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
+use App\Http\Requests\v1\StoreBillingInfoRequest;
 use App\Models\AuctionParticipants;
 use App\Models\Auctions;
 use App\Models\AuctionWinnerAcknowledgement;
+use App\Models\BillingInformation;
 use App\Models\CustomerBids;
+use App\Models\Notifications;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
@@ -94,7 +98,7 @@ class CustomerController extends Controller
     {   
         $customer_id = Auth::id();
         $decrypted_id = decrypt($request->auction_id);
-        $auction = Auctions::whereIn('status',[1,2])->findOrFail($decrypted_id);
+        $auction = Auctions::with('product.store','product.thumbnail')->whereIn('status',[1,2])->findOrFail($decrypted_id);
         $highest_bid = CustomerBids::where('auction_id', $auction->id)->orderByDesc('id')->first(['customer_id','price']);
         
         if($highest_bid) {
@@ -102,6 +106,16 @@ class CustomerController extends Controller
                 return response()->json([
                     'message' => 'Please wait for new a bid before placing another.'
                 ], 401);
+            } else {
+                $item = collect($auction);
+                
+                Notifications::create([
+                    'customer_id' => $highest_bid->customer_id,
+                    'title' => 'Auction',
+                    'description' => "You've been outbided.",
+                    'redirect_url' => env('FRONTEND_URL')."/auction/live/".$item['product']['store']['slug']."/".$item['product']['slug'],
+                    'thumbnail_url' => $item['product']['thumbnail']['url']
+                ]);
             }
         }
 
@@ -266,6 +280,8 @@ class CustomerController extends Controller
         return AuctionWinnerAcknowledgement::with([
             'customer',
             'auction',
+            'payment',
+            'shipment',
             'auction.product',
             'auction.product.thumbnail',
             'auction.product.store',
@@ -277,6 +293,41 @@ class CustomerController extends Controller
         ->whereRelation('auction.highest', 'customer_id', '=', $customer_id)
         ->where('customer_id', $customer_id)
         ->orderByDesc('id')->paginate(10);
+    }
+
+    public function notifications()
+    {
+        $customer_id = Auth::id();
+        return Notifications::where('customer_id', $customer_id)
+        ->orderByDesc('id')->limit(5)->get([
+            'id',
+            'title',
+            'description',
+            'redirect_url',
+            'thumbnail_url',
+            'created_at',
+            'read'
+        ]);
+    }
+
+    public function readNotification($id)
+    {
+        try {
+            $customer_id = Auth::id();
+            return Notifications::where([
+                'customer_id' => $customer_id,
+                'id' => $id
+            ])
+            ->update(['read' => 1]);
+        } catch(Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 301);
+        }
+
+        return response()->json([
+            'message' => 'read'
+        ], 200);
     }
 
     public function checkout($token)
@@ -296,8 +347,62 @@ class CustomerController extends Controller
         ->whereRelation('auction.highest', 'customer_id', '=', $customer_id)
         ->where([
             'customer_id' => $customer_id,
-            'url_token' => $token
-        ])->first();
+            'url_token' => $token,
+            'status' => 0
+        ])->firstOrFail();
+    }
+
+    public function checkoutSuccess($token)
+    {
+        $customer_id = Auth::id();
+        return AuctionWinnerAcknowledgement::with([
+            'auction',
+            'auction.highest'
+        ])
+        ->whereRelation('auction.highest', 'customer_id', '=', $customer_id)
+        ->where([
+            'customer_id' => $customer_id,
+            'url_token' => $token,
+            'status' => 1
+        ])->firstOrFail();
+    }
+
+    public function billingInfo()
+    {
+        $customer_id = Auth::id();
+        return BillingInformation::where('customer_id', $customer_id)->first();
+    }
+
+    public function saveBillingInfo(StoreBillingInfoRequest $request)
+    {
+        try {
+            $customer_id = Auth::id();
+            $count_exist = BillingInformation::where('customer_id', $customer_id)->count();
+            
+            if($count_exist === 0) {
+                BillingInformation::create([
+                    'customer_id' => $customer_id,
+                    'address' => $request->shipping_address,
+                    'full_name' => $request->full_name,
+                    'mobile_number' => $request->mobile_number
+                ]);
+            } else {
+                BillingInformation::where('customer_id', $customer_id)->update([
+                    'address' => $request->shipping_address,
+                    'full_name' => $request->full_name,
+                    'mobile_number' => $request->mobile_number
+                ]);
+            }
+        } catch(Throwable $e) {
+            return response()->json([
+                'message' => 'Error',
+                'error' => $e->getMessage()
+            ], 401);
+        }
+
+        return response()->json([
+            'message' => 'Information saved!'
+        ], 201);
     }
 
 }

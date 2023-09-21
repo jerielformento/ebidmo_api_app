@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\API\v1\PaymentController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PaymentController;
 use App\Mail\AccountVerification;
 use App\Mail\WinnerAcknowledgement;
 use App\Models\Auctions;
@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,28 +51,7 @@ Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
 });
 
-Route::post('/payment-webhook', function(Request $request) {
-    try {
-        PaymentTransactions::create([
-            'payment_id' => $request->payment_id,
-            'payment_request_id' => $request->payment_request_id,
-            'phone' => $request->phone,
-            'amount' => $request->amount,
-            'currency' => $request->currency,
-            'status' => $request->status,
-            'reference_number' => $request->reference_number,
-            'hmac' => $request->hmac
-        ]);
-    } catch(Throwable $e) {
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 301);
-    }
-    
-    return response()->json([
-        'message' => 'Success'
-    ], 201);
-});
+Route::get('/payment-webhook', [PaymentController::class, 'success']);
 
 Route::get('/linkstorage', function () {
     $targetFolder = base_path().'/storage/app/public';

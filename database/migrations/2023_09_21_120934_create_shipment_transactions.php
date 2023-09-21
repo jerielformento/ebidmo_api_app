@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentTransactions extends Migration
+class CreateShipmentTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,14 @@ class CreatePaymentTransactions extends Migration
      */
     public function up()
     {
-        Schema::create('payment_transactions', function (Blueprint $table) {
+        Schema::create('shipment_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('acknowledgement_token', 100);
-            $table->string('checkout_id', 255);
-            $table->string('payment_id', 255);
-            $table->string('payment_method_used', 100);
-            $table->float('amount', 8, 2);
-            $table->string('currency', 3);
-            $table->string('status', 20);
+            $table->text('full_name');
+            $table->text('address');
+            $table->string('contact', 10);
+            $table->foreignId('courier')->references('id')->on('couriers');
+            $table->foreignId('status')->references('id')->on('shipment_status');
             $table->timestamps();
         });
     }
@@ -33,6 +32,6 @@ class CreatePaymentTransactions extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_transactions');
+        Schema::dropIfExists('shipment_transactions');
     }
 }

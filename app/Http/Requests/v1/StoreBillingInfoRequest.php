@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class StoreBillingInfoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|regex:/^[a-zA-Z0-9 ()_\-.]+$/u',
-            'social_store_link' => 'required|url',
-            'image' => 'required|mimes:jpeg,png,jpg'
+            'shipping_address' => 'required|regex:/(^[-0-9A-Za-z.,\/ ]+$)/',
+            'full_name' => 'required|regex:/^[a-zA-Z .]+$/u',
+            'mobile_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10',
         ];
     }
 }

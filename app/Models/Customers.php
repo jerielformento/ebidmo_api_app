@@ -40,7 +40,8 @@ class Customers extends Authenticatable
         'verification_token',
         'remember_token',
         'role',
-        'auth_type'
+        'auth_type',
+        'registered_at'
     ];
  
     public function profile()

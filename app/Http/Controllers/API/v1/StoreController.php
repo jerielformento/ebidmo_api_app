@@ -11,8 +11,11 @@ use App\Models\Products;
 use App\Http\Helper\Helper;
 use App\Models\Auctions;
 use App\Models\AuctionWinnerAcknowledgement;
+use App\Models\StoreVerification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 
 class StoreController extends Controller
@@ -38,15 +41,37 @@ class StoreController extends Controller
         $customer_id = Auth::id();
         
         try {
-            Stores::create([
+            $store = Stores::create([
                 'customer_id' => $customer_id,
                 'name' => $request->name,
                 'slug' => Helper::createSlug('stores', $request->name),
                 'verified' => 0
             ]);
+
+            $file = [];
+
+            if($request->hasFile('image')) {
+                $image = $request->file('image');
+                $storage_path = Storage::putFile('public/product_images', $image);
+                $filename = Str::of($storage_path)->explode('/');
+                $file['name'] = $filename[2];
+                $file['url'] = Storage::url($filename[2]);
+                $file['mime_type'] = $image->getMimeType();
+                $file['size'] = $image->getSize();
+            } else {
+                return response()->json([
+                    'message' => 'Image required.'
+                ], 401);
+            }
+
+            StoreVerification::create([
+                'store_id' => $store->id,
+                'social_store_link' => $request->social_store_link,
+                'ownership_proof_image' => $file['url']
+            ]);
         } catch (Throwable $e) {
             return response()->json([
-                'message' => 'Open store failed.',
+                'message' => $e->getMessage(),
                 'code' => $e->getCode()
             ], 500);
         }   
@@ -155,7 +180,23 @@ class StoreController extends Controller
      */
     public function update(StoreUpdateRequest $request, $id)
     {
-        //
+        try {
+            $customer_id = Auth::id();
+            $slug = Helper::createSlug('stores', $request->name);
+            Stores::where('customer_id', $customer_id)->update([
+                'name' => $request->name,
+                'slug' => $slug
+            ]);
+        } catch(Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ], 301);
+        }
+
+        return response()->json([
+            'message' => 'Setting updated!',
+        ], 200);
     }
 
     /**

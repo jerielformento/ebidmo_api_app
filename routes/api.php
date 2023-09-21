@@ -4,11 +4,13 @@ use App\Http\Controllers\API\v1\AuctionController;
 use App\Http\Controllers\API\v1\CustomerController;
 use App\Http\Controllers\API\v1\PaymentController;
 use App\Http\Controllers\API\v1\ProductController;
+use App\Http\Controllers\API\v1\ShipmentTransactionsController;
 use App\Http\Controllers\API\v1\StoreController;
 use App\Http\Controllers\API\v1\VendorController;
 use App\Http\Controllers\AuctionTypesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\CouriersController;
 use App\Http\Controllers\CurrenciesController;
 use App\Http\Controllers\ItemLocationsController;
 use App\Http\Controllers\ProductBrandsController;
@@ -45,7 +47,14 @@ Route::group([
     Route::get('customer/transactions/bids', [CustomerController::class, 'activities']);
     Route::get('customer/transactions/wins', [CustomerController::class, 'transactions']);
     Route::get('customer/transactions/checkout/{token}', [CustomerController::class, 'checkout']);
-    Route::get('payment/transaction/{token}', [PaymentController::class, 'checkout']);
+    Route::get('customer/transactions/checkout/success/{token}', [CustomerController::class, 'checkoutSuccess']);
+    Route::get('customer/billing/shipping', [CustomerController::class, 'billingInfo']);
+    Route::post('customer/billing/shipping', [CustomerController::class, 'saveBillingInfo']);
+    Route::get('customer/notifications/list', [CustomerController::class, 'notifications']);
+    Route::put('customer/notifications/read/{id}', [CustomerController::class, 'readNotification']);
+
+    Route::get('payment/transaction/{token}', [PaymentController::class, 'oldcheckout']);
+    Route::get('payment/transaction/{token}/process', [PaymentController::class, 'checkout']);
 
     // Products
     Route::resource('products', ProductController::class)->except(['all','show']);
@@ -64,6 +73,13 @@ Route::group([
 
     //Route::resource('vendor', VendorController::class);
     Route::get('vendor/transactions', [VendorController::class, 'transactions']);
+    Route::get('vendor/shipments', [VendorController::class, 'shipments']);
+    Route::get('vendor/shipments/complete', [VendorController::class, 'completeShipments']);
+    Route::get('vendor/transactions/details/{token}', [VendorController::class, 'transactionInfo']);
+    Route::get('vendor/transactions/report', [VendorController::class, 'transactionReport']);
+
+    // Shipment Transactions
+    Route::resource('shipments', ShipmentTransactionsController::class);
 });
 
 Route::group(['prefix'=>'v1'], function() {
@@ -97,6 +113,7 @@ Route::group(['prefix' => 'util'], function() {
 
     Route::get('auction/types', [AuctionTypesController::class, 'index']);
     Route::get('currencies', [CurrenciesController::class, 'index']);
+    Route::get('couriers', [CouriersController::class, 'index']);
 });
 
 // Public Routes - Authentication

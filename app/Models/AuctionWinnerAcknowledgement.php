@@ -28,4 +28,19 @@ class AuctionWinnerAcknowledgement extends Model
     {
         return $this->hasOne(Auctions::class, 'id', 'auction_id');
     }
+
+    public function payment()
+    {
+        return $this->hasOne(PaymentTransactions::class, 'acknowledgement_token', 'url_token');
+    }
+
+    public function shipment()
+    {
+        return $this->hasOne(ShipmentTransactions::class, 'acknowledgement_token', 'url_token');
+    }
+
+    public function billing()
+    {
+        return $this->hasOne(BillingInformation::class, 'customer_id', 'customer_id');
+    }
 }
