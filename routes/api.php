@@ -120,7 +120,6 @@ Route::group(['prefix' => 'util'], function() {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/authenticate', [AuthController::class, 'authRegister']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/refresh-token', [AuthController::class, 'refreshToken'])->middleware('auth:sanctum');
 Route::get('/account-verification/{token}', [AuthController::class, 'accountVerification']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
-

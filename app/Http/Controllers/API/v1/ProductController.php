@@ -219,7 +219,7 @@ class ProductController extends Controller
     {
         $append_product = [];
         try {
-            $product = Products::with('images:id,product_id,filename,url,mime_type,size','brand','category','condition','item_location','store','currency','thumbnail')
+            $product = Products::with('images:id,product_id,filename,url,mime_type,size','brand','category','condition','item_location','store','currency','thumbnail','auction:product_id,status')
             ->where('slug', $product)
             ->first(['id','name','slug','details','brand','condition','category','item_location','currency','created_at','store_id']);
             

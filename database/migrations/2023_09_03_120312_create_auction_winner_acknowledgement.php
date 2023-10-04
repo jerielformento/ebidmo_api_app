@@ -21,6 +21,7 @@ class CreateAuctionWinnerAcknowledgement extends Migration
             $table->integer('status');
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
+            $table->integer('expired');
         });
     }
 

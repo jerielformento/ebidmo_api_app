@@ -158,15 +158,19 @@ class VendorController extends Controller
         $customer_id = Auth::id();
         $store = Stores::where('customer_id', $customer_id)->firstOrFail(['id']);
 
-        $payments = AuctionWinnerAcknowledgement::with('payment')
-        ->where('status', 1)->get();
+        $auctions = AuctionWinnerAcknowledgement::with('payment')
+        ->whereIn('status', [1,2,3])->get();
 
         //return $payments;
         $total_payout = 0;
+        $total_shipped = 0;
+        $total_completed = 0;
 
-        $pays = collect($payments);
-        foreach($pays as $pay) {
-            $total_payout += $this->deductTransactionCharge($pay['payment']['amount']);
+        $transactions = collect($auctions);
+        foreach($transactions as $transaction) {
+            $total_payout += $this->deductTransactionCharge($transaction['payment']['amount']);
+            $total_shipped += ($transaction['status'] === 2) ? 1 : 0;
+            $total_completed += ($transaction['status'] === 3) ? 1 : 0;
         }
 
         /* $stores = Stores::withCount('products')->where('id', $store->id)->get();
@@ -179,7 +183,9 @@ class VendorController extends Controller
         ->whereRelation('auction.product', 'store_id', '=', $store->id)->count(); */
 
         return response()->json([
-            'total_payout' => '₱'.number_format($total_payout)
+            'total_payout' => '₱'.number_format($total_payout),
+            'total_shipped' => $total_shipped,
+            'total_completed' => $total_completed
         ]);
     }
 

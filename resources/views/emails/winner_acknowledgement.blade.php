@@ -8,7 +8,7 @@ Item: {{ $item }}<br/>
 Store: {{ $store }}<br/>
 Winning bid: ₱{{ $bid }}<br/>
 
-Kindly acknolwedge this email within <strong>2 hours</strong> using the link below:
+Kindly acknolwedge this email within <strong>24 hours</strong> using the link below:
 @component('mail::button', ['url' => $url])
 Acknowledge
 @endcomponent

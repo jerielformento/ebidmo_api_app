@@ -61,7 +61,7 @@ class AuctionComplete extends Command
 
                     $verif_token = md5($auction->id.Carbon::now()->timestamp);
                     $current_datetime = Carbon::now();
-                    $ended_datetime = Carbon::parse($current_datetime->format('Y-m-d H:i:s'))->addHours(2)->format('Y-m-d H:i:s');
+                    $ended_datetime = Carbon::parse($current_datetime->format('Y-m-d H:i:s'))->addDay()->format('Y-m-d H:i:s');
 
                     AuctionWinnerAcknowledgement::create([
                         'auction_id' => $auction->id,

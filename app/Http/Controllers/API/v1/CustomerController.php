@@ -10,15 +10,18 @@ use App\Http\Requests\v1\CustomerJoinBidRequest;
 use App\Http\Requests\v1\CustomerStoreRequest;
 use App\Http\Requests\v1\CustomerUpdateRequest;
 use App\Http\Requests\v1\StoreBillingInfoRequest;
+use App\Mail\WinnerAcknowledgement;
 use App\Models\AuctionParticipants;
 use App\Models\Auctions;
 use App\Models\AuctionWinnerAcknowledgement;
 use App\Models\BillingInformation;
 use App\Models\CustomerBids;
+use App\Models\CustomersProfile;
 use App\Models\Notifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class CustomerController extends Controller
@@ -235,10 +238,40 @@ class CustomerController extends Controller
         $decrypted_id = decrypt($request->auction_id);
 
         try {
-            Auctions::where('id', $decrypted_id)->update([
-                'status' => 4,
-                'bought_by' => $customer_id
-            ]);
+            $auction = Auctions::with('product', 'product.store')->where('id', $decrypted_id)->firstOrFail();
+
+            if($auction) {
+                Auctions::where('id', $decrypted_id)->update([
+                    'status' => 4,
+                    'won_by' => $customer_id,
+                    'bought_by' => $customer_id
+                ]);
+    
+                CustomerBids::create([
+                    'auction_id' => $auction->id,
+                    'customer_id' => $customer_id,
+                    'price' => $auction->buy_now_price,
+                    'bidded_at' => Carbon::now()->toDateTime()
+                ]);
+                
+                $verif_token = md5($decrypted_id.Carbon::now()->timestamp);
+                $current_datetime = Carbon::now();
+                $ended_datetime = Carbon::parse($current_datetime->format('Y-m-d H:i:s'))->addDay()->format('Y-m-d H:i:s');
+    
+                AuctionWinnerAcknowledgement::create([
+                    'auction_id' => $decrypted_id,
+                    'customer_id' => $customer_id,
+                    'url_token' => $verif_token,
+                    'status' => 0,
+                    'started_at' => $current_datetime->format('Y-m-d H:i:s'),
+                    'ended_at' => $ended_datetime,
+                ]);
+
+                $winner = CustomersProfile::where('customer_id', $customer_id)->first(['email']);
+                    
+                Mail::send(new WinnerAcknowledgement($winner->email, $verif_token, $auction->product->name, $auction->product->store->name, $auction->buy_now_price));
+            }
+            
         } catch(Throwable $e) {
             return response()->json([
                 'message' => 'Error',
@@ -254,8 +287,40 @@ class CustomerController extends Controller
     public function history($id)
     {
         $customer_id = Auth::id();
-        return CustomerBids::with('customer:id','customer.profile:customer_id,first_name,last_name')->where('auction_id', decrypt($id))
+        $customerBids = CustomerBids::with('customer:id','customer.profile:customer_id,first_name,last_name')->where('auction_id', decrypt($id))
         ->orderByDesc('id')->limit(5)->get(['bidded_at as time', 'price', 'customer_id']);
+
+        $bidders = collect($customerBids);
+        foreach($bidders as $bidder) {
+            $bidder['customer']['id'] = 1;
+            $bidder['customer']['profile']['first_name'] = $this->stringToSecret($bidder['customer']['profile']['first_name']);
+            $bidder['customer']['profile']['last_name'] = $this->stringToSecret($bidder['customer']['profile']['last_name']);
+        }
+
+
+        /* $aprod = collect($product);
+            $aprod->put('store_slug', Str::slug($aprod['store']['name']));
+            $customer_id = Auth::id();
+            $mystore = Stores::where('customer_id', $customer_id)->first(['slug']);
+
+            if($aprod['store']['slug'] === $mystore->slug) {
+                $aprod->put('owner', true);
+            }
+            $append_product = $aprod; */
+
+        return $bidders;
+    }
+
+
+    private function stringToSecret(string $string = NULL)
+    {
+        if (!$string) {
+            return NULL;
+        }
+        $length = strlen($string);
+        $visibleCount = (int) round($length / 4);
+        $hiddenCount = $length - ($visibleCount * 2);
+        return substr($string, 0, $visibleCount) . str_repeat('*', $hiddenCount) . substr($string, ($visibleCount * -1), $visibleCount);
     }
 
     public function activities()
@@ -348,8 +413,10 @@ class CustomerController extends Controller
         ->where([
             'customer_id' => $customer_id,
             'url_token' => $token,
-            'status' => 0
-        ])->firstOrFail();
+            'status' => 0,
+            'expired' => 0
+        ])
+        ->firstOrFail();
     }
 
     public function checkoutSuccess($token)

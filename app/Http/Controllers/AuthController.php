@@ -8,6 +8,7 @@ use App\Mail\AccountVerification;
 use App\Models\Customers;
 use App\Models\CustomersProfile;
 use App\Models\Stores;
+use App\Models\User;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session as FacadesSession;
+use Laravel\Sanctum\PersonalAccessToken;
 use PhpParser\ErrorHandler\Throwing;
 use Throwable;
 
@@ -228,14 +230,48 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // delete user token
-        if(Auth::guard('customer')->check()) {
-            FacadesSession::flush();
-            Auth::guard('customer')->logout();
-        }
+        $user = $request->user();
+        // Revoke the current access token
+        $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
 
         return response([
             'message' => 'logged out.'
         ], 201);
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $user = $request->user();
+
+        // Revoke the current access token
+        $user->tokens()->delete();
+
+        // Create and return a new access token
+        $token = $user->createToken('ebid-app-token')->plainTextToken;
+
+        return response()->json(['refresh_token' => $token], 200);
+        /* $token = $request->header('Authorization');
+        
+        if (empty($token)) {
+            return response()->json(['message' => 'Token is invalid 1'], 401);
+        }
+    
+        $token = explode('Bearer ', $token);
+        $access_token = PersonalAccessToken::findToken($token[1]);
+        if(empty($token[1]) || empty($access_token)) {
+            return response()->json(['message' => 'Token is invalid 2'], 401);
+        }
+        
+        if (!$access_token->tokenable instanceof Customers) {
+            return response()->json(['message' => 'Token is invalid 3'], 401);
+        }
+
+        $access_token->tokenable->tokens()->delete();
+    
+        return response()->json([
+            'message' => 'success',
+            'refresh_token' => $access_token->tokenable->createToken('access-token')->plainTextToken
+        ], 200); */
     }
 
     public function mapping()
