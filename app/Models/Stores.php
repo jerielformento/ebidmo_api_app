@@ -33,4 +33,9 @@ class Stores extends Model
     {
         return $this->hasOne(Customers::class, 'id', 'customer_id');
     }
+
+    public function verification()
+    {
+        return $this->hasOne(StoreVerification::class, 'store_id');
+    }
 }

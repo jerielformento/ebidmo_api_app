@@ -45,8 +45,22 @@ Route::group(['prefix' => 'api-docs'], function() {
     Route::any('utilities', [DocsController::class, 'utilities']);
 });
 
-// Admin Page
-Route::get('/ebidmo-admin', [AdminController::class, 'index']);
+// Admin Access
+Route::group(['prefix' => 'ebidmo-admin'], function() {
+    Route::any('/', [AdminController::class, 'index']);
+    Route::post('login', [AdminController::class, 'login']);
+    Route::any('logout', [AdminController::class, 'logout']);
+    Route::get('create', [AdminController::class, 'create']);
+    Route::get('customers', [AdminController::class, 'customers']);
+    
+    Route::get('vendors', [AdminController::class, 'vendors']);
+    Route::post('vendors/approval', [AdminController::class, 'approveStore']);
+
+    Route::get('products', [AdminController::class, 'products']);
+    Route::get('auctions', [AdminController::class, 'auctions']);
+    Route::get('transactions', [AdminController::class, 'transactions']);
+});
+
 Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
 });

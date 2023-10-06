@@ -19,4 +19,9 @@ class StoreVerification extends Model
         'social_store_link',
         'ownership_proof_image'
     ];
+
+    public function store()
+    {
+        return $this->belongsTo(Stores::class);
+    }
 }
