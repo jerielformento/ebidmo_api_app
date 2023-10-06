@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VendorApproval;
 use App\Models\Customers;
 use App\Models\Stores;
 use App\Models\User;
@@ -9,6 +10,7 @@ use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class AdminController extends Controller
@@ -68,10 +70,15 @@ class AdminController extends Controller
     public function approveStore(Request $request)
     {
         try {
-            Stores::where([
+            $store = Stores::where([
                 'id' => (int)$request->id,
                 'verified' => 0
             ])->update(['verified' => 1]);
+
+            if($store) {
+                $vendor = Stores::with('customer.profile')->where('id', $request->id)->first();
+                Mail::send(new VendorApproval($vendor->customer->profile->email));
+            }
         } catch(Throwable $e) {
             return response([
                 'message' => $e->getMessage()
