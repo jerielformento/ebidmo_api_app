@@ -28,6 +28,7 @@ class AdminController extends Controller
             return redirect('/ebidmo-admin/login');
         }
     }
+    
     public function index()
     {
         $this->setting['page']['name'] = 'Dashboard';

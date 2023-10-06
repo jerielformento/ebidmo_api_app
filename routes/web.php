@@ -12,7 +12,9 @@ use App\Models\CustomersProfile;
 use App\Models\PaymentTransactions;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -46,20 +48,27 @@ Route::group(['prefix' => 'api-docs'], function() {
 });
 
 // Admin Access
-Route::group(['prefix' => 'ebidmo-admin'], function() {
-    Route::any('/', [AdminController::class, 'index']);
-    Route::post('login', [AdminController::class, 'login']);
+Route::group([
+    'prefix' => 'ebidmo-admin',
+    'middleware' => ['auth:sanctum']
+], function() {
     Route::any('logout', [AdminController::class, 'logout']);
-    Route::get('create', [AdminController::class, 'create']);
     Route::get('customers', [AdminController::class, 'customers']);
-    
+    Route::get('create', [AdminController::class, 'create']);
     Route::get('vendors', [AdminController::class, 'vendors']);
     Route::post('vendors/approval', [AdminController::class, 'approveStore']);
-
     Route::get('products', [AdminController::class, 'products']);
     Route::get('auctions', [AdminController::class, 'auctions']);
     Route::get('transactions', [AdminController::class, 'transactions']);
 });
+
+Route::group([
+    'prefix' => 'ebidmo-admin',
+], function() {
+    Route::any('/', [AdminController::class, 'index'])->name('ebidmo-admin');
+    Route::post('login', [AdminController::class, 'login']);
+});
+
 
 Route::get('/email', function() {
     Mail::send(new AccountVerification('clash.jeriel@gmail.com', 'd7b40169fd728af8fcb6eb4091580032'));
