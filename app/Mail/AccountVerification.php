@@ -35,9 +35,9 @@ class AccountVerification extends Mailable
         $url = config('app.url').'/api/account-verification/'.$this->verification_link;
 
         return $this
-            ->from('noreply@ebidmo.net')
+            ->from(config('mail.from.address'))
             ->to($this->email)
-            ->subject('eBidMo - Account Verification')
+            ->subject(config('app.name').' - Account Verification')
             ->markdown('emails.account_verification', [
                 'url' => $url
             ]);

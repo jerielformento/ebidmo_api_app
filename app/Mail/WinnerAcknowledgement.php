@@ -41,9 +41,9 @@ class WinnerAcknowledgement extends Mailable
         $url = config('app.frontend_url').'/me/profile/transactions/checkout/'.$this->acknowledgement_link;
 
         return $this
-            ->from('noreply@ebidmo.net')
+            ->from(config('mail.from.address'))
             ->to($this->email)
-            ->subject('eBidMo - Winner Acknowledgement')
+            ->subject(config('app.name').' - Winner Acknowledgement')
             ->markdown('emails.winner_acknowledgement', [
                 'url' => $url,
                 'item' => $this->item_name,
