@@ -31,11 +31,6 @@
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="navbar-nav">
-            <div class="nav-item text-nowrap">
-                <a class="nav-link px-3" href="{{ url('/ebidmo-admin/logout') }}">Sign out</a>
-            </div>
-        </div>
     </header>
       
       <div class="container-fluid">
@@ -60,6 +55,10 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="/ebidmo-admin/auctions"><span data-feather="home"></span> Auctions</a>
+                </li>
+                <hr class="my-3">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{{ url('/ebidmo-admin/logout') }}"><span data-feather="home"></span> Sign out</a>
                 </li>
               </ul>
             </div>

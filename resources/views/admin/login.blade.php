@@ -13,7 +13,7 @@
 </head>
 <body class="bg-light">
 <div class="container">
-    <div class="row">
+    <div class="row m-2">
       {{-- <form class="space-y-6" action="{{ url('/ebidmo-admin/login') }}" method="POST">
         @include('alert/message')
         @csrf
@@ -45,8 +45,8 @@
         Not a member?
         <a href="#" class="font-semibold leading-6 text-teal-600 hover:text-teal-500">Start a 14 day free trial</a>
       </p> --}}
-      <div class="mt-5 col-6 col-md-4 mx-auto border py-4 px-4 rounded bg-white">
-        <div class="mx-auto text-center mb-3">
+      <div class="my-5 col-12 col-md-4 mx-auto border py-4 px-4 rounded bg-white">
+        <div class="mx-5 text-center mb-3">
             <img class="img" src="images/ebidmo.png" alt="Your Company" height=120 width=120>
           </div>
         <form action="{{ url('/ebidmo-admin/login') }}" method="POST">
