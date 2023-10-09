@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session as FacadesSession;
 use Laravel\Sanctum\PersonalAccessToken;
 use PhpParser\ErrorHandler\Throwing;
+use Illuminate\Support\Str;
 use Throwable;
 
 class AuthController extends Controller
@@ -30,7 +31,7 @@ class AuthController extends Controller
 
         // create customer
         $customer = Customers::create([
-            'username' => $request->username,
+            'username' => Str::lower($request->username),
             'password' => Hash::make($request->password),
             'role' => 1,
             'auth_type' => 1,
@@ -44,7 +45,7 @@ class AuthController extends Controller
             // create profile
             $customer_profile = CustomersProfile::create([
                 'customer_id' => $customer->id,
-                'email' => $request->email,
+                'email' => Str::lower($request->email),
                 'first_name' => $request->firstname,
                 'last_name' => $request->lastname,
                 'middle_name' => $request->middlename,
@@ -57,7 +58,7 @@ class AuthController extends Controller
                 ], 401);
             } else {
                 try {
-                    Mail::send(new AccountVerification($request->email, $verif_token));
+                    Mail::send(new AccountVerification(Str::lower($request->email), $verif_token));
                 } catch(Throwable $e) {
                     return response([
                         'message' => $e->getMessage()
@@ -78,7 +79,7 @@ class AuthController extends Controller
     public function authRegister(Request $request)
     {
         $check_exist = Customers::with('profile:customer_id,first_name,last_name')
-            ->where('username', $request->username)
+            ->where('username', Str::lower($request->username))
             ->where('is_verified', 1)
             ->first();
 
@@ -89,7 +90,7 @@ class AuthController extends Controller
 
             // create customer
             $customer = Customers::create([
-                'username' => $request->username,
+                'username' => Str::lower($request->username),
                 'password' => Hash::make($request->password),
                 'role' => 1,
                 'auth_type' => 2,
@@ -103,7 +104,7 @@ class AuthController extends Controller
                 // create profile
                 $customer_profile = CustomersProfile::create([
                     'customer_id' => $customer->id,
-                    'email' => $request->email,
+                    'email' => Str::lower($request->email),
                     'first_name' => $request->firstname,
                     'last_name' => $request->lastname,
                     'middle_name' => $request->middlename,
@@ -116,7 +117,7 @@ class AuthController extends Controller
                     ], 401);
                 } else {
                     try {
-                        Mail::send(new AccountVerification($request->email, $verif_token));
+                        Mail::send(new AccountVerification(Str::lower($request->email), $verif_token));
                     } catch(Throwable $e) {
                         return response([
                             'message' => $e->getMessage()
@@ -136,7 +137,7 @@ class AuthController extends Controller
 
         try {
             $customer = Customers::with(['profile:customer_id,first_name,last_name,email','store'])
-            ->where('username', $request->username)
+            ->where('username', Str::lower($request->username))
             ->where('is_verified', 1)
             ->first();
 
@@ -172,11 +173,11 @@ class AuthController extends Controller
         $remember_me  = $request->remember;
 
         // check customer login status
-        if (Auth::guard('customer')->attempt(['username' => $request->username, 'password' => 
+        if (Auth::guard('customer')->attempt(['username' => Str::lower($request->username), 'password' => 
             $request->password])) {
             try {
                 $customer = Customers::with(['profile:customer_id,first_name,last_name,email','store'])
-                ->where('username', $request->username)
+                ->where('username', Str::lower($request->username))
                 ->where('is_verified', 1)
                 ->first();
 

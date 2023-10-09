@@ -24,7 +24,7 @@ class AuthRegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|string|unique:customers',
+            'username' => 'required|string|unique:customers|regex:/(^[a-zA-Z]+[a-zA-Z0-9\\-_]*$)/u',
             'firstname' => 'required|regex:/^[a-zA-Z .]+$/u',
             'lastname' => 'required|regex:/^[a-zA-Z .]+$/u',
             'middlename' => 'sometimes|regex:/^[a-zA-Z ]+$/u|nullable',
